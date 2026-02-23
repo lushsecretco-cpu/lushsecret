@@ -27,7 +27,7 @@ export default function PowerUp() {
           <div className="relative z-10">
             <div className="overflow-hidden rounded-lg mb-4">
               <img 
-                src={product.image.startsWith('http') ? product.image : `/images/${product.image}`} 
+                src={product.image && product.image.startsWith('http') ? product.image : product.image ? `/images/${product.image}` : '/images/cat1.jpg'} 
                 alt={product.name} 
                 className="w-full h-48 object-cover rounded-lg group-hover:scale-110 transition-transform duration-300" 
                 onError={(e) => e.target.src = '/images/cat1.jpg'} 
