@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaShoppingCart, FaUser, FaPhone, FaTruck } from 'react-icons/fa';
+import { FaShoppingCart, FaUser, FaPhone, FaTruck, FaBars, FaTimes } from 'react-icons/fa';
 import { useCart } from './CartContext';
 
 export default function Navbar() {
   const { getItemCount } = useCart();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <nav className="relative bg-gradient-to-b from-black via-gray-900 to-black text-white shadow-2xl fixed top-0 left-0 right-0 z-50 border-b-2 border-rose-500/40">
       {/* Efecto de resplandor oro rosado superior */}
@@ -30,8 +36,36 @@ export default function Navbar() {
               <div className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-rose-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </Link>
           </div>
+
+          {/* Iconos Móviles + Botón Menú */}
+          <div className="flex md:hidden items-center space-x-2">
+            <Link href="/carrito" className="relative group p-2 rounded-full hover:bg-rose-500/10 transition-all duration-300">
+              <FaShoppingCart className="w-5 h-5 text-rose-400 group-hover:text-rose-300 transition-colors duration-300" />
+              {getItemCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-br from-rose-400 via-rose-500 to-rose-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold shadow-lg shadow-rose-500/60 border border-rose-300">
+                  {getItemCount()}
+                </span>
+              )}
+            </Link>
+            
+            <Link href="/login" className="relative group p-2 rounded-full hover:bg-rose-500/10 transition-all duration-300">
+              <FaUser className="w-5 h-5 text-rose-400 group-hover:text-rose-300 transition-colors duration-300" />
+            </Link>
+
+            <button 
+              onClick={toggleMobileMenu}
+              className="relative group p-2 rounded-full hover:bg-rose-500/10 transition-all duration-300 ml-2"
+              aria-label="Menú"
+            >
+              {mobileMenuOpen ? (
+                <FaTimes className="w-6 h-6 text-rose-400 group-hover:text-rose-300 transition-colors duration-300" />
+              ) : (
+                <FaBars className="w-6 h-6 text-rose-400 group-hover:text-rose-300 transition-colors duration-300" />
+              )}
+            </button>
+          </div>
           
-          {/* Navegación Luxury */}
+          {/* Navegación Luxury Desktop */}
           <div className="hidden md:flex items-center space-x-3">
             {/* Botones de categorías con efecto dorado brillante */}
             <Link href="/" className="relative group overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-2.5 rounded-full font-light transition-all duration-300 transform hover:scale-105 shadow-lg shadow-rose-600/30 hover:shadow-rose-400/50 hover:shadow-xl">
@@ -88,6 +122,92 @@ export default function Navbar() {
             <Link href="/contacto" className="relative group p-3 rounded-full hover:bg-rose-500/10 transition-all duration-300 transform hover:scale-110">
               <FaPhone className="w-6 h-6 text-rose-400 group-hover:text-rose-300 transition-colors duration-300 drop-shadow-lg group-hover:drop-shadow-[0_0_8px_rgba(251,113,133,0.6)]" />
               <div className="absolute inset-0 rounded-full bg-rose-400/0 group-hover:bg-rose-400/20 blur-md transition-all duration-300"></div>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Menú Móvil Desplegable */}
+      <div 
+        className={`md:hidden absolute top-full left-0 right-0 bg-gradient-to-b from-black via-gray-900 to-black border-b-2 border-rose-500/40 shadow-2xl overflow-hidden transition-all duration-500 ease-in-out ${
+          mobileMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-4 py-6 space-y-3">
+          {/* Categorías Móviles */}
+          <Link 
+            href="/" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block relative overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-3 rounded-full font-light transition-all duration-300 text-center shadow-lg shadow-rose-600/30"
+          >
+            Inicio
+          </Link>
+          
+          <Link 
+            href="/categoria/linea-intima" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block relative overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-3 rounded-full font-light transition-all duration-300 text-center shadow-lg shadow-rose-600/30"
+          >
+            Línea Íntima
+          </Link>
+          
+          <Link 
+            href="/categoria/smart-pleasure" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block relative overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-3 rounded-full font-light transition-all duration-300 text-center shadow-lg shadow-rose-600/30"
+          >
+            Smart Pleasure
+          </Link>
+          
+          <Link 
+            href="/categoria/lub-care" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block relative overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-3 rounded-full font-light transition-all duration-300 text-center shadow-lg shadow-rose-600/30"
+          >
+            Lub & Care
+          </Link>
+          
+          <Link 
+            href="/categoria/power-up" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block relative overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-3 rounded-full font-light transition-all duration-300 text-center shadow-lg shadow-rose-600/30"
+          >
+            Power Up
+          </Link>
+          
+          <Link 
+            href="/categoria/zona-fetish" 
+            onClick={() => setMobileMenuOpen(false)}
+            className="block relative overflow-hidden bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-400 hover:to-rose-500 text-white px-5 py-3 rounded-full font-light transition-all duration-300 text-center shadow-lg shadow-rose-600/30"
+          >
+            Zona Fetish
+          </Link>
+
+          {/* Separador */}
+          <div className="h-px bg-gradient-to-r from-transparent via-rose-400/50 to-transparent my-4"></div>
+
+          {/* Enlaces adicionales móviles */}
+          <div className="flex justify-around items-center pt-2">
+            <Link 
+              href="/tracking" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex flex-col items-center group"
+            >
+              <div className="p-3 rounded-full bg-rose-500/10 group-hover:bg-rose-500/20 transition-all duration-300">
+                <FaTruck className="w-6 h-6 text-rose-400 group-hover:text-rose-300 transition-colors duration-300" />
+              </div>
+              <span className="text-xs text-rose-300 mt-2">Tracking</span>
+            </Link>
+
+            <Link 
+              href="/contacto" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex flex-col items-center group"
+            >
+              <div className="p-3 rounded-full bg-rose-500/10 group-hover:bg-rose-500/20 transition-all duration-300">
+                <FaPhone className="w-6 h-6 text-rose-400 group-hover:text-rose-300 transition-colors duration-300" />
+              </div>
+              <span className="text-xs text-rose-300 mt-2">Contacto</span>
             </Link>
           </div>
         </div>
