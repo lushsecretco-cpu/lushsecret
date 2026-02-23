@@ -8,7 +8,8 @@ router.get('/', async (req, res) => {
     const result = await pool.query('SELECT * FROM products ORDER BY id');
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ message: 'Error obteniendo productos' });
+    console.error('Error obteniendo productos:', err);
+    res.status(500).json({ message: 'Error obteniendo productos', error: err.message });
   }
 });
 

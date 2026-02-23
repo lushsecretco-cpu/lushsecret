@@ -64,8 +64,19 @@ app.use('/api/products', productRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tracking', trackingRoutes);
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Servidor backend escuchando en puerto ${port}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`Database configured: ${process.env.DATABASE_URL ? 'YES' : 'NO'}`);
+  
+  // Verificar conexión a base de datos
+  try {
+    const result = await pool.query('SELECT NOW()');
+    console.log('✅ Base de datos conectada:', result.rows[0].now);
+  } catch (err) {
+    console.error('❌ Error conectando a base de datos:', err.message);
+  }
   
   // Iniciar servicio de actualización automática de tracking
   console.log('\n🚀 Iniciando servicio de tracking automático...');
