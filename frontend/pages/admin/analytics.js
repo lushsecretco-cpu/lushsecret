@@ -109,7 +109,7 @@ export default function Dashboard() {
 
   const fetchOrderStats = async () => {
     try {
-      const response = await fetch('${API_URL}/api/orders/stats/shipping');
+      const response = await fetch(`${API_URL}/api/orders/stats/shipping`);
       const data = await response.json();
       setOrderStats(data);
     } catch (error) {

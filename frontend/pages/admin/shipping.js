@@ -35,7 +35,7 @@ export default function ShippingAdmin() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('${API_URL}/api/tracking/admin/pending');
+      const response = await fetch(`${API_URL}/api/tracking/admin/pending`);
       const data = await response.json();
       setOrders(data);
     } catch (error) {
@@ -63,7 +63,7 @@ export default function ShippingAdmin() {
     setUpdating(true);
 
     try {
-      const response = await fetch('${API_URL}/api/tracking/update', {
+      const response = await fetch(`${API_URL}/api/tracking/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

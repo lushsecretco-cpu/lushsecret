@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import LuxuryBackground from '../../components/LuxuryBackground';
@@ -140,7 +141,7 @@ export default function ProductoDetalle() {
 
   const fetchProducto = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/products/${id}`);
+      const response = await fetch(`${API_URL}/api/products/${id}`);
       const data = await response.json();
       
       // Procesar tallas/colores si son un string JSON

@@ -29,7 +29,7 @@ export const trackEvent = async (eventData) => {
       timestamp: new Date().toISOString()
     };
 
-    await fetch('${API_URL}/api/analytics/track', {
+    await fetch(`${API_URL}/api/analytics/track`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

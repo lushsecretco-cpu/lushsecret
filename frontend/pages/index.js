@@ -38,7 +38,7 @@ export default function Home() {
   const cargarProductos = async () => {
     try {
       // Cargar productos destacados (3 más vistos globalmente)
-      const destacadosResponse = await fetch('${API_URL}/api/analytics/most-viewed?limit=3');
+      const destacadosResponse = await fetch(`${API_URL}/api/analytics/most-viewed?limit=3`);
       const destacadosData = await destacadosResponse.json();
       setProductosDestacados(destacadosData);
       

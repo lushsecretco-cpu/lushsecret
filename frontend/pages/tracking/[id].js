@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import LuxuryBackground from '../../components/LuxuryBackground';
@@ -29,7 +30,7 @@ export default function TrackingPage() {
   const fetchTrackingData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:4000/api/tracking/${id}`);
+      const response = await fetch(`${API_URL}/api/tracking/${id}`);
       
       if (!response.ok) {
         throw new Error('Orden no encontrada');

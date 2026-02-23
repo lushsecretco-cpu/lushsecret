@@ -13,7 +13,7 @@ export const ProductsProvider = ({ children }) => {
   const fetchProducts = async () => {
     try {
       console.log('Fetching products...');
-      const response = await fetch('${API_URL}/api/products');
+      const response = await fetch(`${API_URL}/api/products`);
       const data = await response.json();
       console.log('Products fetched:', data);
       setProducts(data);

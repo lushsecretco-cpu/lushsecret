@@ -13,7 +13,7 @@ export default function Productos() {
   usePageTracking('Todos los Productos');
 
   useEffect(() => {
-    fetch('${API_URL}/api/products')
+    fetch(`${API_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         setProductos(data);
