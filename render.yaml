@@ -1,0 +1,38 @@
+services:
+  # Backend API
+  - type: web
+    name: lushsecret-api
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: BOLD_API_KEY
+        sync: false
+      - key: BOLD_PUBLIC_KEY
+        sync: false
+      - key: BOLD_API_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+
+  # Base de datos PostgreSQL
+  - type: pgsql
+    name: lushsecret-db
+    region: oregon
+    plan: free
+    databaseName: lushsecret
+    databaseUser: lushsecret_user
