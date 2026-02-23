@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import LuxuryBackground from '../../components/LuxuryBackground';
 
@@ -34,7 +35,7 @@ export default function ShippingAdmin() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/api/tracking/admin/pending');
+      const response = await fetch('${API_URL}/api/tracking/admin/pending');
       const data = await response.json();
       setOrders(data);
     } catch (error) {
@@ -62,7 +63,7 @@ export default function ShippingAdmin() {
     setUpdating(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/tracking/update', {
+      const response = await fetch('${API_URL}/api/tracking/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -341,5 +342,6 @@ export default function ShippingAdmin() {
     </LuxuryBackground>
   );
 }
+
 
 

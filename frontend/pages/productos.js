@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import LuxuryBackground from '../components/LuxuryBackground';
@@ -12,7 +13,7 @@ export default function Productos() {
   usePageTracking('Todos los Productos');
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/products')
+    fetch('${API_URL}/api/products')
       .then(res => res.json())
       .then(data => {
         setProductos(data);
@@ -59,3 +60,4 @@ export default function Productos() {
     </LuxuryBackground>
   );
 }
+

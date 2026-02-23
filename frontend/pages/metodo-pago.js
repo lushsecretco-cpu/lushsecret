@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useCart } from '../components/CartContext';
@@ -38,7 +39,7 @@ export default function MetodoPago() {
           price: item.price
         }));
 
-        const response = await fetch('http://localhost:4000/api/orders', {
+        const response = await fetch('${API_URL}/api/orders', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -237,3 +238,4 @@ export default function MetodoPago() {
     </LuxuryBackground>
   );
 }
+

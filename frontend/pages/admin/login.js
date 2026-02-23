@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState } from 'react';
 import { FaUser, FaLock, FaShieldAlt } from 'react-icons/fa';
 import LuxuryBackground from '../../components/LuxuryBackground';
@@ -10,7 +11,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
+      const response = await fetch('${API_URL}/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -108,3 +109,4 @@ export default function AdminLogin() {
     </LuxuryBackground>
   );
 }
+

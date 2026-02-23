@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import LuxuryBackground from '../../components/LuxuryBackground';
@@ -27,7 +28,7 @@ export default function TrackingIndex() {
 
     try {
       // Verificar si la orden existe
-      const response = await fetch(`http://localhost:4000/api/tracking/${orderId.trim()}`);
+      const response = await fetch(`${API_URL}/api/tracking/${orderId.trim()}`);
       
       if (!response.ok) {
         throw new Error('Orden no encontrada. Verifica el número de orden.');
@@ -187,3 +188,4 @@ export default function TrackingIndex() {
     </LuxuryBackground>
   );
 }
+

@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -95,7 +96,7 @@ export default function Dashboard() {
   const fetchDashboardData = async () => {
     try {
       setRefreshing(true);
-      const response = await fetch(`http://localhost:4000/api/analytics/dashboard?days=${days}`);
+      const response = await fetch(`${API_URL}/api/analytics/dashboard?days=${days}`);
       const data = await response.json();
       setStats(data);
     } catch (error) {
@@ -108,7 +109,7 @@ export default function Dashboard() {
 
   const fetchOrderStats = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/orders/stats/shipping');
+      const response = await fetch('${API_URL}/api/orders/stats/shipping');
       const data = await response.json();
       setOrderStats(data);
     } catch (error) {
@@ -1379,6 +1380,7 @@ function DashboardCard({ title, children }) {
     </div>
   );
 }
+
 
 
 

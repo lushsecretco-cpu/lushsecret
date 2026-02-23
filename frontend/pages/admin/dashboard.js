@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSignOutAlt } from 'react-icons/fa';
 import LuxuryBackground from '../../components/LuxuryBackground';
+import { API_URL } from '../../config/api';
 
 export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:4000/api/products', {
+      const response = await fetch(`${API_URL}/api/products`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -160,8 +161,8 @@ export default function AdminDashboard() {
     try {
       const token = localStorage.getItem('token');
       const url = editingProduct
-        ? `http://localhost:4000/api/products/${editingProduct.id}`
-        : 'http://localhost:4000/api/products';
+        ? `${API_URL}/api/products/${editingProduct.id}`
+        : `${API_URL}/api/products`;
       const method = editingProduct ? 'PUT' : 'POST';
 
       // Enviar colors si existen, de lo contrario enviar sizes
@@ -226,7 +227,7 @@ export default function AdminDashboard() {
     if (window.confirm('¿Estás seguro de eliminar este producto?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:4000/api/products/${id}`, {
+        const response = await fetch(`${API_URL}/api/products/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -649,5 +650,6 @@ export default function AdminDashboard() {
     </LuxuryBackground>
   );
 }
+
 
 

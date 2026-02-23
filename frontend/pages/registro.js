@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
@@ -37,7 +38,7 @@ export default function Registro() {
     }
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/auth/register', {
+      const response = await fetch('${API_URL}/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,4 +214,5 @@ export default function Registro() {
     </LuxuryBackground>
   );
 }
+
 

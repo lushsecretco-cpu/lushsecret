@@ -1,3 +1,4 @@
+import { API_URL } from '../../config/api';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Slider from '../components/Slider';
@@ -37,7 +38,7 @@ export default function Home() {
   const cargarProductos = async () => {
     try {
       // Cargar productos destacados (3 más vistos globalmente)
-      const destacadosResponse = await fetch('http://localhost:4000/api/analytics/most-viewed?limit=3');
+      const destacadosResponse = await fetch('${API_URL}/api/analytics/most-viewed?limit=3');
       const destacadosData = await destacadosResponse.json();
       setProductosDestacados(destacadosData);
       
@@ -45,7 +46,7 @@ export default function Home() {
       const porCategoria = {};
       await Promise.all(
         categorias.map(async (cat) => {
-          const response = await fetch(`http://localhost:4000/api/analytics/most-viewed?category=${cat.slug}&limit=3`);
+          const response = await fetch(`${API_URL}/api/analytics/most-viewed?category=${cat.slug}&limit=3`);
           const data = await response.json();
           porCategoria[cat.slug] = data;
         })
@@ -247,3 +248,4 @@ export default function Home() {
     </LuxuryBackground>
   );
 }
+

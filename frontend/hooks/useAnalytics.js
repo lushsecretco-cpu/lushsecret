@@ -1,3 +1,4 @@
+import { API_URL } from '../config/api';
 import { useEffect, useRef } from 'react';
 
 // Generar un ID de sesión único
@@ -28,7 +29,7 @@ export const trackEvent = async (eventData) => {
       timestamp: new Date().toISOString()
     };
 
-    await fetch('http://localhost:4000/api/analytics/track', {
+    await fetch('${API_URL}/api/analytics/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -142,3 +143,4 @@ export default {
   trackPurchase,
   trackSearch
 };
+
