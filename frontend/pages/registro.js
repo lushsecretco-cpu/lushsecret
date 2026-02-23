@@ -1,4 +1,4 @@
-import { API_URL } from '../../config/api';
+import { API_URL } from '../config/api';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { FaUser, FaEnvelope, FaLock } from 'react-icons/fa';

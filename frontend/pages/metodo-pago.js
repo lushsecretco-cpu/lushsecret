@@ -1,4 +1,4 @@
-import { API_URL } from '../../config/api';
+import { API_URL } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useCart } from '../components/CartContext';

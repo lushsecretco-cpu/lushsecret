@@ -1,4 +1,4 @@
-import { API_URL } from '../../config/api';
+import { API_URL } from '../config/api';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Slider from '../components/Slider';
