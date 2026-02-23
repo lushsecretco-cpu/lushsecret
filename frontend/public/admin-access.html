@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Rápido - Admin Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            background: linear-gradient(to right, #facc15, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            color: #999;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .option {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        h2 {
+            color: #facc15;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #facc15, #eab308);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .info {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #facc15;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Acceso Admin Analytics</h1>
+        <p>Elige una opción para acceder al panel de monitoreo</p>
+        
+        <div class="option">
+            <h2>⚡ Acceso Rápido (DEV)</h2>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">
+                Establece credenciales de admin temporales y accede directamente al panel
+            </p>
+            <button onclick="setDevAdmin()">🚀 Acceder como Admin DEV</button>
+        </div>
+        
+        <div class="option">
+            <h2>👤 Login Normal</h2>
+            <p style="font-size: 0.9rem; margin-bottom: 15px;">
+                Inicia sesión con tus credenciales de administrador
+            </p>
+            <button onclick="goToLogin()">🔑 Ir a Login</button>
+        </div>
+        
+        <div class="info">
+            <strong>💡 Opción 1: Acceso Rápido</strong><br>
+            Crea una sesión temporal de admin en tu navegador.<br>
+            Perfecto para desarrollo y pruebas.
+        </div>
+        
+        <div class="info warning">
+            <strong>⚠️ Solo para Desarrollo</strong><br>
+            El acceso rápido solo debe usarse en entorno de desarrollo local.
+            En producción, siempre usa el login normal.
+        </div>
+        
+        <div class="info" style="margin-top: 20px; background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3);">
+            <strong>📍 URLs Útiles</strong><br>
+            Panel Analytics: <code>/admin/analytics</code><br>
+            Dashboard Admin: <code>/admin/dashboard</code><br>
+            Login Admin: <code>/admin/login</code>
+        </div>
+    </div>
+    
+    <script>
+        function setDevAdmin() {
+            // Establecer credenciales de admin en localStorage
+            localStorage.setItem('token', 'dev-admin-token-' + Date.now());
+            localStorage.setItem('userType', 'admin');
+            localStorage.setItem('userName', 'Admin DEV');
+            
+            // Mostrar confirmación
+            alert('✅ Sesión de admin establecida!\n\nAhora serás redirigido al panel de analytics.');
+            
+            // Redirigir al panel de analytics
+            window.location.href = '/admin/analytics';
+        }
+        
+        function goToLogin() {
+            window.location.href = '/admin/login';
+        }
+        
+        // Verificar si ya hay sesión de admin
+        window.addEventListener('load', () => {
+            const token = localStorage.getItem('token');
+            const userType = localStorage.getItem('userType');
+            
+            if (token && userType === 'admin') {
+                const goNow = confirm('⚠️ Ya tienes una sesión de admin activa.\n\n¿Ir directamente al panel de analytics?');
+                if (goNow) {
+                    window.location.href = '/admin/analytics';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

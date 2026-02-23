@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Analytics - LushSecret</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(250, 204, 21, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+        }
+        
+        h1 {
+            background: linear-gradient(to right, #facc15, #eab308);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(250, 204, 21, 0.1);
+        }
+        
+        h2 {
+            color: #facc15;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #facc15, #eab308);
+            color: black;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        #log {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(250, 204, 21, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 3px solid #facc15;
+            background: rgba(250, 204, 21, 0.1);
+        }
+        
+        .success {
+            border-left-color: #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+        }
+        
+        .error {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status.ok {
+            background: #22c55e;
+            color: black;
+        }
+        
+        .status.fail {
+            background: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba de Analytics</h1>
+        <p style="text-align: center; color: #facc15; margin-bottom: 30px;">
+            Usa estos botones para probar que el sistema de tracking funciona correctamente
+        </p>
+        
+        <div class="section">
+            <h2>📊 Pruebas de Eventos</h2>
+            <button onclick="testPageView()">👁️ Simular Vista de Página</button>
+            <button onclick="testProductView()">🛍️ Simular Vista de Producto</button>
+            <button onclick="testAddToCart()">🛒 Simular Agregar al Carrito</button>
+            <button onclick="testPurchase()">💰 Simular Compra</button>
+            <button onclick="testSearch()">🔍 Simular Búsqueda</button>
+        </div>
+        
+        <div class="section">
+            <h2>🔗 API Endpoints</h2>
+            <button onclick="testDashboard()">📈 Obtener Dashboard</button>
+            <button onclick="testGetEvents('page_view')">📄 Obtener Page Views</button>
+            <button onclick="testGetEvents('product_view')">🛍️ Obtener Product Views</button>
+        </div>
+        
+        <div class="section">
+            <h2>🧹 Utilidades</h2>
+            <button onclick="clearLog()">🗑️ Limpiar Log</button>
+            <button onclick="window.open('http://localhost:3000/admin/analytics', '_blank')">🚀 Abrir Panel de Monitoreo</button>
+        </div>
+        
+        <div class="section">
+            <h2>📝 Log de Actividad</h2>
+            <div id="log"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:4000/api/analytics';
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.insertBefore(entry, logDiv.firstChild);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            log('Log limpiado', 'success');
+        }
+        
+        async function trackEvent(eventData) {
+            try {
+                const response = await fetch(`${API_BASE}/track`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...eventData,
+                        session_id: 'test_session_' + Date.now(),
+                        user_agent: navigator.userAgent,
+                        page_url: window.location.href,
+                        referrer: document.referrer || null
+                    })
+                });
+                
+                if (response.ok) {
+                    log(`✅ Evento "${eventData.event_type}" rastreado exitosamente`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Error al rastrear evento: ${response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Error de red: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        function testPageView() {
+            trackEvent({
+                event_type: 'page_view',
+                metadata: {
+                    page_name: 'Prueba de Página',
+                    path: '/test'
+                }
+            });
+        }
+        
+        function testProductView() {
+            trackEvent({
+                event_type: 'product_view',
+                product_id: 999,
+                product_name: 'Producto de Prueba',
+                category: 'Test Category',
+                metadata: {
+                    price: 99.99,
+                    stock: 10
+                }
+            });
+        }
+        
+        function testAddToCart() {
+            trackEvent({
+                event_type: 'add_to_cart',
+                product_id: 999,
+                product_name: 'Producto de Prueba',
+                category: 'Test Category',
+                metadata: {
+                    price: 99.99,
+                    quantity: 1,
+                    selectedSize: 'M',
+                    selectedColor: 'Negro'
+                }
+            });
+        }
+        
+        function testPurchase() {
+            trackEvent({
+                event_type: 'purchase',
+                metadata: {
+                    order_id: 'TEST_' + Date.now(),
+                    total: 299.99,
+                    items: 3,
+                    payment_method: 'Tarjeta de Crédito'
+                }
+            });
+        }
+        
+        function testSearch() {
+            trackEvent({
+                event_type: 'search',
+                metadata: {
+                    search_term: 'lencería sexy',
+                    results_count: 15
+                }
+            });
+        }
+        
+        async function testDashboard() {
+            try {
+                log('🔄 Obteniendo datos del dashboard...', 'info');
+                const response = await fetch(`${API_BASE}/dashboard?days=7`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Dashboard obtenido: ${data.totalViews} visitas totales, ${data.productViews} vistas de productos, ${data.uniqueSessions} sesiones únicas`, 'success');
+                    console.log('Dashboard completo:', data);
+                } else {
+                    log(`❌ Error al obtener dashboard: ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error de red: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testGetEvents(eventType) {
+            try {
+                log(`🔄 Obteniendo eventos de tipo "${eventType}"...`, 'info');
+                const response = await fetch(`${API_BASE}/events/${eventType}?limit=5`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ ${data.length} eventos de tipo "${eventType}" obtenidos`, 'success');
+                    console.log('Eventos:', data);
+                } else {
+                    log(`❌ Error al obtener eventos: ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error de red: ${error.message}`, 'error');
+            }
+        }
+        
+        // Log inicial
+        log('🚀 Sistema de pruebas iniciado - Backend: ' + API_BASE, 'success');
+        log('💡 Haz clic en los botones para probar el tracking', 'info');
+    </script>
+</body>
+</html>

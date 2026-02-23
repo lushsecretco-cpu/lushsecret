@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpiar Carrito - LushSecret</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            border: 2px solid #fbbf24;
+            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.3);
+            max-width: 500px;
+        }
+        h1 {
+            color: #fbbf24;
+            margin-bottom: 20px;
+        }
+        button {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(251, 191, 36, 0.5);
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+        .info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid #3b82f6;
+            color: #3b82f6;
+            margin-bottom: 20px;
+        }
+        .link {
+            color: #fbbf24;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 Limpiar Carrito</h1>
+        <div class="info message" style="display: block;">
+            <p><strong>¿Por qué necesitas esto?</strong></p>
+            <p>Los productos antiguos en el carrito no tienen la información necesaria para editar tallas y colores.</p>
+            <p>Al limpiar el carrito, podrás agregar productos nuevamente con todas las opciones de edición disponibles.</p>
+        </div>
+        
+        <button onclick="limpiarCarrito()">Limpiar Carrito Ahora</button>
+        <button onclick="verCarrito()">Ver Carrito</button>
+        
+        <div id="mensaje" class="message"></div>
+        
+        <p style="margin-top: 30px;">
+            Después de limpiar, ve a <a href="/" class="link">Inicio</a> y agrega productos nuevamente.
+        </p>
+    </div>
+
+    <script>
+        function limpiarCarrito() {
+            localStorage.removeItem('cart');
+            const mensaje = document.getElementById('mensaje');
+            mensaje.textContent = '✅ Carrito limpiado exitosamente! Ahora puedes agregar productos con opciones de edición completas.';
+            mensaje.className = 'message success';
+            mensaje.style.display = 'block';
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+        
+        function verCarrito() {
+            window.location.href = '/carrito';
+        }
+        
+        // Mostrar información del carrito actual
+        window.onload = function() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            if (cart.length > 0) {
+                console.log('Carrito actual tiene', cart.length, 'productos');
+                console.log('Estructura del primer producto:', cart[0]);
+            } else {
+                console.log('El carrito está vacío');
+            }
+        }
+    </script>
+</body>
+</html>
