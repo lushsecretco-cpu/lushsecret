@@ -103,4 +103,42 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// TEMPORAL: Endpoint para actualizar stocks
+router.post('/update-stocks', async (req, res) => {
+  try {
+    console.log('Actualizando stocks de productos...');
+
+    // Obtener todos los productos con sizes
+    const result = await pool.query('SELECT id, sizes FROM products WHERE sizes IS NOT NULL');
+
+    let updated = 0;
+    for (const product of result.rows) {
+      let sizes = product.sizes;
+
+      // Parsear si es string
+      if (typeof sizes === 'string') {
+        try {
+          sizes = JSON.parse(sizes);
+        } catch (e) {
+          console.error(`Error parseando sizes para producto ${product.id}:`, e);
+          continue;
+        }
+      }
+
+      const totalStock = calculateTotalStock(sizes);
+
+      // Actualizar stock
+      await pool.query('UPDATE products SET stock = $1 WHERE id = $2', [totalStock, product.id]);
+
+      console.log(`Producto ${product.id}: stock actualizado a ${totalStock}`);
+      updated++;
+    }
+
+    res.json({ message: `Stocks actualizados para ${updated} productos` });
+  } catch (error) {
+    console.error('Error actualizando stocks:', error);
+    res.status(500).json({ message: 'Error actualizando stocks' });
+  }
+});
+
 module.exports = router;
