@@ -23,6 +23,11 @@ const initAnalyticsTable = async () => {
       );
     `);
     
+    // Agregar columna session_id si no existe (para tablas existentes)
+    await pool.query(`
+      ALTER TABLE analytics ADD COLUMN IF NOT EXISTS session_id VARCHAR(255);
+    `);
+    
     // Crear tabla de items de órdenes si no existe
     await pool.query(`
       CREATE TABLE IF NOT EXISTS order_items (
