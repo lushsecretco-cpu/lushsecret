@@ -139,6 +139,28 @@ export default function ProductoDetalle() {
     return url;
   };
 
+  // Función para obtener el stock disponible basado en la selección actual
+  const getAvailableStock = () => {
+    if (!producto) return 0;
+    
+    // Si tiene colores seleccionados
+    if (producto.hasColors && selectedColor && selectedSize) {
+      const sizeData = selectedColor.sizes?.find(s => s.size === selectedSize);
+      return sizeData ? sizeData.stock || 0 : 0;
+    }
+    
+    // Si tiene tallas simples seleccionadas
+    if (!producto.hasColors && selectedSize && producto.sizes) {
+      const sizeData = producto.sizes.find(s => 
+        (typeof s === 'object' ? s.size : s) === selectedSize
+      );
+      return typeof sizeData === 'object' ? sizeData.stock || 0 : producto.totalStock || producto.stock || 0;
+    }
+    
+    // Si no hay selección, usar stock total
+    return producto.totalStock || producto.stock || 0;
+  };
+
   const fetchProducto = async () => {
     try {
       const response = await fetch(`${API_URL}/api/products/${id}`);
@@ -337,7 +359,7 @@ export default function ProductoDetalle() {
 
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
-    if (newQuantity >= 1 && newQuantity <= producto.stock) {
+    if (newQuantity >= 1 && newQuantity <= getAvailableStock()) {
       setQuantity(newQuantity);
     }
   };
@@ -669,7 +691,7 @@ export default function ProductoDetalle() {
                   <span className="text-2xl font-light text-white w-12 text-center">{quantity}</span>
                   <button
                     onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= producto.stock}
+                    disabled={quantity >= getAvailableStock()}
                     className="w-12 h-12 rounded-lg bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-300"
                   >
                     +
