@@ -7,7 +7,7 @@ const hpp = require('hpp');
 // Configuración de rate limiting
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora (aumentado para desarrollo)
-  max: 500, // límite de 500 requests por hora (ajustado para e-commerce)
+  max: 1000, // límite de 1000 requests por hora (ajustado para e-commerce con analytics)
   message: {
     error: 'Demasiadas solicitudes desde esta IP, por favor intenta de nuevo más tarde.'
   },
