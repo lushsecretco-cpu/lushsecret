@@ -12,12 +12,12 @@ async function createAdminUser() {
     if (checkAdmin.rows.length > 0) {
       console.log('✅ Usuario admin ya existe:');
       console.log('   Email: admin@lushsecret.co');
-      console.log('   Contraseña: admin123');
+      console.log('   Contraseña: Siempreactivo1$');
       return;
     }
 
     // Crear usuario admin
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash('Siempreactivo1$', 10);
     
     const result = await pool.query(
       `INSERT INTO users (name, email, password, role, phone, is_verified) 
@@ -28,14 +28,14 @@ async function createAdminUser() {
 
     // Enviar SMS de alerta
     try {
-      await sendSMS('+57 6013570804', 'Cuenta de administrador creada en LushSecret. Email: admin@lushsecret.co, Password: admin123');
+      await sendSMS('+57 6013570804', 'Cuenta de administrador creada en LushSecret. Email: admin@lushsecret.co, Password: Siempreactivo1$');
     } catch (smsError) {
       console.error('Error enviando SMS de admin:', smsError.message);
     }
 
     console.log('✅ Usuario admin creado exitosamente:');
     console.log('   Email: admin@lushsecret.co');
-    console.log('   Contraseña: admin123');
+    console.log('   Contraseña: Siempreactivo1$');
     console.log('   ID:', result.rows[0].id);
     
   } catch (error) {
