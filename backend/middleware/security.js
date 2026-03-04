@@ -30,7 +30,7 @@ const authLimiter = rateLimit({
 // Rate limiting para creación de pedidos
 const orderLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hora
-  max: 10, // máximo 10 pedidos por hora por IP
+  max: 3, // máximo 3 pedidos por hora por IP
   message: {
     error: 'Demasiados pedidos desde esta IP. Contacta soporte si crees que es un error.'
   },
