@@ -3,7 +3,12 @@ const bcrypt = require('bcryptjs');
 
 async function updateAdminPassword() {
   try {
-    const newPassword = 'Siempreactivo1$'; // Nueva contraseña
+    // First, ensure the is_verified column exists
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
+    `);
+
+    const newPassword = 'Siempreactivo1$';
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     const result = await pool.query(
