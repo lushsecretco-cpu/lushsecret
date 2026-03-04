@@ -25,11 +25,11 @@ export default function LineaIntima() {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative z-10">
-            <div className="overflow-hidden rounded-lg mb-4 bg-gradient-to-br from-gray-800/50 to-gray-900/50">
+            <div className="overflow-hidden rounded-lg mb-4 bg-gradient-to-br from-gray-800/50 to-gray-900/50 flex justify-center">
               <img 
                 src={product.image && product.image.startsWith('http') ? product.image : product.image ? `/images/${product.image}` : '/images/cat1.jpg'} 
                 alt={product.name} 
-                className="w-full h-96 object-contain rounded-lg group-hover:scale-105 transition-transform duration-300" 
+                className="w-64 h-64 object-cover rounded-lg group-hover:scale-105 transition-transform duration-300" 
                 onError={(e) => e.target.src = '/images/cat1.jpg'} 
               />
             </div>
