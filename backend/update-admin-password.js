@@ -7,7 +7,7 @@ async function updateAdminPassword() {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     const result = await pool.query(
-      "UPDATE users SET password = $1 WHERE email = 'admin@lushsecret.co'",
+      "UPDATE users SET password = $1, is_verified = true WHERE email = 'admin@lushsecret.co'",
       [hashedPassword]
     );
 
