@@ -2,6 +2,23 @@ const express = require('express');
 const pool = require('../db');
 const router = express.Router();
 
+// Función para calcular stock total de sizes
+const calculateTotalStock = (sizes) => {
+  if (!sizes || !Array.isArray(sizes)) return 0;
+  
+  return sizes.reduce((total, item) => {
+    // Si es estructura con colores (cada item tiene color y sizes)
+    if (item.sizes && Array.isArray(item.sizes)) {
+      return total + item.sizes.reduce((sizeTotal, size) => sizeTotal + (size.stock || 0), 0);
+    }
+    // Si es estructura simple (cada item tiene stock directamente)
+    else if (typeof item === 'object' && item.stock !== undefined) {
+      return total + (item.stock || 0);
+    }
+    return total;
+  }, 0);
+};
+
 // Obtener todos los productos
 router.get('/', async (req, res) => {
   try {
@@ -32,10 +49,14 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   const { name, description, price, cost_price, image, category, sizes, stock, video } = req.body;
   const finalSizes = category === 'linea-intima' ? JSON.stringify(sizes) : null;
+  
+  // Calcular stock total si tiene sizes
+  const totalStock = category === 'linea-intima' && sizes ? calculateTotalStock(sizes) : (stock || 0);
+  
   try {
     const result = await pool.query(
       'INSERT INTO products (name, description, price, cost_price, image, category, sizes, stock, video) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-      [name, description, price, cost_price || 0, image, category, finalSizes, stock, video]
+      [name, description, price, cost_price || 0, image, category, finalSizes, totalStock, video]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -49,10 +70,14 @@ router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { name, description, price, cost_price, image, category, sizes, stock, video } = req.body;
   const finalSizes = category === 'linea-intima' ? JSON.stringify(sizes) : null;
+  
+  // Calcular stock total si tiene sizes
+  const totalStock = category === 'linea-intima' && sizes ? calculateTotalStock(sizes) : (stock || 0);
+  
   try {
     const result = await pool.query(
       'UPDATE products SET name = $1, description = $2, price = $3, cost_price = $4, image = $5, category = $6, sizes = $7, stock = $8, video = $9 WHERE id = $10 RETURNING *',
-      [name, description, price, cost_price || 0, image, category, finalSizes, stock, video, id]
+      [name, description, price, cost_price || 0, image, category, finalSizes, totalStock, video, id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Producto no encontrado' });
