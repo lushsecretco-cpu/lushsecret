@@ -220,6 +220,32 @@ export default function ProductoDetalle() {
       } else {
         data.hasColors = false;
       }
+
+      // Calcular stock total
+      let totalStock = data.stock || 0; // Stock general por defecto
+      
+      if (data.sizes && Array.isArray(data.sizes) && data.sizes.length > 0) {
+        // Si tiene estructura de colores
+        if (data.hasColors && data.colors) {
+          totalStock = data.colors.reduce((acc, color) => {
+            if (color.sizes && Array.isArray(color.sizes)) {
+              return acc + color.sizes.reduce((sizeAcc, size) => sizeAcc + (size.stock || 0), 0);
+            }
+            return acc;
+          }, 0);
+        } 
+        // Si tiene tallas simples
+        else {
+          totalStock = data.sizes.reduce((acc, size) => {
+            if (typeof size === 'object' && size.stock !== undefined) {
+              return acc + (size.stock || 0);
+            }
+            return acc;
+          }, 0);
+        }
+      }
+      
+      data.totalStock = totalStock;
       
       setProducto(data);
       setLoading(false);
@@ -533,8 +559,8 @@ export default function ProductoDetalle() {
               {/* Stock disponible */}
               <div className="mb-6 flex items-center">
                 {(() => {
-                  const stockNum = Number(producto.stock);
-                  console.log('Stock:', producto.stock, 'Type:', typeof producto.stock, 'Parsed:', stockNum);
+                  const stockNum = Number(producto.totalStock || producto.stock || 0);
+                  console.log('Stock total:', producto.totalStock, 'Stock general:', producto.stock, 'Parsed:', stockNum);
                   return stockNum > 0 ? (
                     <>
                       <FaCheck className="text-green-400 mr-2" />
