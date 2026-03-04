@@ -533,12 +533,13 @@ export default function ProductoDetalle() {
               {/* Stock disponible */}
               <div className="mb-6 flex items-center">
                 {(() => {
-                  console.log('Stock:', producto.stock, 'Type:', typeof producto.stock);
-                  return producto.stock > 0 ? (
+                  const stockNum = Number(producto.stock);
+                  console.log('Stock:', producto.stock, 'Type:', typeof producto.stock, 'Parsed:', stockNum);
+                  return stockNum > 0 ? (
                     <>
                       <FaCheck className="text-green-400 mr-2" />
                       <span className="text-green-400 font-light">
-                        {producto.stock} unidades disponibles
+                        {stockNum} unidades disponibles
                       </span>
                     </>
                   ) : (
