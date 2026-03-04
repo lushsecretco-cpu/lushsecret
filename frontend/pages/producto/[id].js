@@ -560,7 +560,6 @@ export default function ProductoDetalle() {
               <div className="mb-6 flex items-center">
                 {(() => {
                   const stockNum = Number(producto.totalStock || producto.stock || 0);
-                  console.log('Stock total:', producto.totalStock, 'Stock general:', producto.stock, 'Parsed:', stockNum);
                   return stockNum > 0 ? (
                     <>
                       <FaCheck className="text-green-400 mr-2" />
