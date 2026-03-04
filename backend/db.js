@@ -193,7 +193,7 @@ const createTables = async () => {
     const hashedPassword = await bcrypt.hash('admin123', 10);
     await pool.query(`
       INSERT INTO users (name, email, password, role)
-      VALUES ('Admin', 'admin@lushsecret.com', $1, 'admin')
+      VALUES ('Admin', 'admin@lushsecret.co', $1, 'admin')
       ON CONFLICT (email) DO NOTHING;
     `, [hashedPassword]);
     console.log('Usuario admin creado o ya existe.');

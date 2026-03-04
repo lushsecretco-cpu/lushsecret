@@ -140,7 +140,7 @@ CREATE TABLE tracking_history (
 
 -- Crear usuario admin (opcional)
 INSERT INTO users (email, password, name, role) 
-VALUES ('admin@lushsecret.com', '$2a$10$ejemplo_hash', 'Admin', 'admin');
+VALUES ('admin@lushsecret.co', '$2a$10$ejemplo_hash', 'Admin', 'admin');
 ```
 
 ### 6. Actualizar Frontend en Vercel

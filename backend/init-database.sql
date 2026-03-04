@@ -72,11 +72,32 @@ CREATE TABLE IF NOT EXISTS tracking_history (
 -- Hash generado con bcrypt (10 rounds)
 INSERT INTO users (email, password, name, role) 
 VALUES (
-  'admin@lushsecret.com', 
+  'admin@lushsecret.co', 
   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 
   'Administrador', 
   'admin'
 ) ON CONFLICT (email) DO NOTHING;
+
+-- Tabla de logs de seguridad
+CREATE TABLE IF NOT EXISTS security_logs (
+  id SERIAL PRIMARY KEY,
+  method VARCHAR(10) NOT NULL,
+  url TEXT NOT NULL,
+  ip VARCHAR(45) NOT NULL,
+  user_id INTEGER REFERENCES users(id),
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status_code INTEGER,
+  user_agent TEXT,
+  request_size INTEGER DEFAULT 0,
+  response_time INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear índices para optimizar consultas de seguridad
+CREATE INDEX IF NOT EXISTS idx_security_logs_timestamp ON security_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_security_logs_ip ON security_logs(ip);
+CREATE INDEX IF NOT EXISTS idx_security_logs_method ON security_logs(method);
+CREATE INDEX IF NOT EXISTS idx_security_logs_status ON security_logs(status_code);
 
 -- Productos de ejemplo (opcional - puedes eliminar estas líneas si no quieres datos de prueba)
 INSERT INTO products (name, description, price, category, stock) VALUES

@@ -5,10 +5,13 @@ const orderRoutes = require('./routes/orderRoutes');
 const productRoutes = require('./routes/productRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const trackingRoutes = require('./routes/trackingRoutes');
+const securityRoutes = require('./routes/securityRoutes');
 const { iniciarActualizacionAutomatica } = require('./services/trackingAutoUpdater');
 const pool = require('./db');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const { securityMiddleware, limiter, authLimiter, orderLimiter } = require('./middleware/security');
+const { securityLogger } = require('./middleware/securityLogger');
 dotenv.config();
 
 const port = process.env.PORT || 4000;
@@ -42,7 +45,18 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+// Middleware de seguridad
+app.use(securityMiddleware);
+
+// Security logging
+app.use(securityLogger);
+
+// Rate limiting general
+app.use(limiter);
+
+// Parsing del body con límite de tamaño
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -63,6 +77,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/tracking', trackingRoutes);
+app.use('/api/security', securityRoutes);
 
 app.listen(port, async () => {
   console.log(`Servidor backend escuchando en puerto ${port}`);

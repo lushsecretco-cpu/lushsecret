@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaSignOutAlt } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSignOutAlt, FaShieldAlt } from 'react-icons/fa';
 import LuxuryBackground from '../../components/LuxuryBackground';
 import { API_URL } from '../../config/api';
 
@@ -264,6 +264,12 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-light text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-200 to-amber-300 tracking-wide">Panel de Administración - Productos</h1>
           <div className="flex space-x-4">
+            <button
+              onClick={() => window.location.href = '/admin/security'}
+              className="bg-gradient-to-r from-blue-600/80 to-purple-600/80 hover:from-blue-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg font-light transition-all duration-300 flex items-center transform hover:scale-105 shadow-lg shadow-blue-500/30"
+            >
+              <FaShieldAlt className="mr-2" /> Panel de Seguridad
+            </button>
             <button
               onClick={() => {
                 setEditingProduct(null);

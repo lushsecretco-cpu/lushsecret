@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - LushSecret</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-container h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: white;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .success {
+            background: rgba(46, 204, 113, 0.2);
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+        .error {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .credentials {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .credentials h3 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .credentials p {
+            color: #ddd;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>🔐 Panel Admin</h2>
+
+        <div class="credentials">
+            <h3>Credenciales de Prueba:</h3>
+            <p><strong>Email:</strong> admin@lushsecret.co</p>
+            <p><strong>Password:</strong> admin123</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="admin@lushsecret.co" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" value="admin123" required>
+            </div>
+
+            <button type="submit" class="login-btn">Iniciar Sesión</button>
+        </form>
+
+        <div id="message"></div>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="goToSecurity()" style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                Ir al Panel de Seguridad
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:4000';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.user.role === 'admin') {
+                    // Guardar token en localStorage
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('userType', 'admin');
+                    localStorage.setItem('userName', data.user.name || data.user.email);
+
+                    messageDiv.innerHTML = '<div class="message success">✅ Login exitoso! Redirigiendo...</div>';
+
+                    // Redirigir después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/admin/security';
+                    }, 2000);
+                } else {
+                    messageDiv.innerHTML = '<div class="message error">❌ Credenciales inválidas o no eres administrador</div>';
+                }
+            } catch (err) {
+                messageDiv.innerHTML = '<div class="message error">❌ Error de conexión</div>';
+                console.error('Error:', err);
+            }
+        });
+
+        function goToSecurity() {
+            window.location.href = '/admin/security';
+        }
+
+        // Verificar si ya hay un token válido
+        window.addEventListener('load', async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const response = await fetch(`${API_URL}/api/auth/security-logs`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        document.getElementById('message').innerHTML =
+                            '<div class="message success">✅ Ya estás autenticado. <a href="/admin/security" style="color: #27ae60;">Ir al panel de seguridad</a></div>';
+                    }
+                } catch (err) {
+                    // Token inválido, continuar normalmente
+                }
+            }
+        });
+    </script>
+</body>
+</html>

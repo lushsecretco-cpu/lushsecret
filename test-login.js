@@ -9,7 +9,7 @@ const testAdminLogin = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: 'admin@lushsecret.com',
+        email: 'admin@lushsecret.co',
         password: 'admin123'
       })
     });

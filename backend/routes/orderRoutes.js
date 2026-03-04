@@ -1,10 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const { sendSMS } = require('../services/twilioService');
+const { authenticateToken } = require('../middleware/auth');
+const { orderLimiter } = require('../middleware/security');
+const { validateOrderCreation, validateGuestOrderCreation, validateShippingAddress, handleValidationErrors } = require('../middleware/validation');
 
-// Obtener todos los pedidos
-router.get('/', async (req, res) => {
+// Obtener pedidos del usuario autenticado
+router.get('/user/orders', authenticateToken, async (req, res) => {
   try {
+    const userId = req.user.id;
+
+    // Obtener pedidos del usuario
+    const ordersResult = await pool.query(`
+      SELECT * FROM orders
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+    `, [userId]);
+
+    // Para cada pedido, obtener sus items
+    const ordersWithItems = await Promise.all(
+      ordersResult.rows.map(async (order) => {
+        const itemsResult = await pool.query(`
+          SELECT id, product_id, product_name, quantity, price
+          FROM order_items
+          WHERE order_id = $1
+        `, [order.id]);
+
+        return {
+          ...order,
+          items: itemsResult.rows
+        };
+      })
+    );
+
+    res.json(ordersWithItems);
+  } catch (error) {
+    console.error('Error al obtener pedidos del usuario:', error);
+    res.status(500).json({ error: 'Error al obtener tus pedidos' });
+  }
+});
+
+// Obtener todos los pedidos (solo admin)
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    // Verificar si es admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Acceso denegado' });
+    }
+
     const result = await pool.query(`
       SELECT o.*, u.name as customer_name, u.email as customer_email
       FROM orders o
@@ -18,8 +62,95 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Crear pedido (desde el checkout)
-router.post('/', async (req, res) => {
+// Crear pedido para usuario registrado
+router.post('/user/create', authenticateToken, orderLimiter, [...validateOrderCreation, ...validateShippingAddress], handleValidationErrors, async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const userId = req.user.id;
+    const {
+      items,          // [{ product_id, product_name, quantity, price }]
+      total,
+      payment_method = 'bold',
+      shipping_address, // Dirección de envío
+      session_id
+    } = req.body;
+
+    // Obtener información del usuario
+    const userResult = await client.query(
+      'SELECT name, email, phone, address FROM users WHERE id = $1',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Crear orden con user_id
+    const orderResult = await client.query(
+      `INSERT INTO orders (user_id, total, status, shipping_address, payment_method, created_at)
+       VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
+       RETURNING *`,
+      [userId, total, 'pending', JSON.stringify(shipping_address || user.address), payment_method]
+    );
+
+    const orderId = orderResult.rows[0].id;
+
+    // Crear items de la orden
+    for (const item of items) {
+      await client.query(
+        `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [orderId, item.product_id, item.product_name, item.quantity, item.price]
+      );
+
+      // Registrar en analytics el evento de conversión pendiente
+      await client.query(
+        `INSERT INTO analytics (event_type, product_id, product_name, session_id, metadata)
+         VALUES ($1, $2, $3, $4, $5)`,
+        ['checkout_initiated', item.product_id, item.product_name, session_id,
+         JSON.stringify({ order_id: orderId, quantity: item.quantity, price: item.price, user_id: userId })]
+      );
+    }
+
+    await client.query('COMMIT');
+
+    // Enviar SMS de confirmación al cliente
+    try {
+      if (user.phone) {
+        await sendSMS(user.phone, `¡Gracias por tu compra en LushSecret! Tu pedido #${orderId} ha sido creado. Total: $${total}. Te notificaremos cuando sea enviado.`);
+      }
+    } catch (smsError) {
+      console.error('Error enviando SMS de pedido:', smsError.message);
+    }
+
+    // Enviar SMS de alerta al admin
+    try {
+      await sendSMS('+57 6013570804', `Nuevo pedido #${orderId} creado. Total: $${total}. Cliente: ${user.name}, Email: ${user.email}, Tel: ${user.phone}`);
+    } catch (smsError) {
+      console.error('Error enviando SMS de admin:', smsError.message);
+    }
+
+    res.json({
+      success: true,
+      order: orderResult.rows[0],
+      message: 'Orden creada exitosamente'
+    });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error al crear pedido:', error);
+    res.status(500).json({ error: 'Error al crear pedido' });
+  } finally {
+    client.release();
+  }
+});
+
+// Crear pedido (desde el checkout) - Para usuarios no registrados
+router.post('/', orderLimiter, validateGuestOrderCreation, handleValidationErrors, async (req, res) => {
   const client = await pool.connect();
   
   try {
@@ -61,6 +192,23 @@ router.post('/', async (req, res) => {
     }
 
     await client.query('COMMIT');
+    
+    // Enviar SMS de confirmación al cliente
+    try {
+      const phone = customer_info.telefono;
+      if (phone) {
+        await sendSMS(phone, `¡Gracias por tu compra en LushSecret! Tu pedido #${orderId} ha sido creado. Total: $${total}. Te notificaremos cuando sea enviado.`);
+      }
+    } catch (smsError) {
+      console.error('Error enviando SMS de pedido:', smsError.message);
+    }
+    
+    // Enviar SMS de alerta al admin
+    try {
+      await sendSMS('+57 6013570804', `Nuevo pedido #${orderId} creado. Total: $${total}. Cliente: ${customer_info.nombre} ${customer_info.apellidos}, Tel: ${customer_info.telefono}`);
+    } catch (smsError) {
+      console.error('Error enviando SMS de admin:', smsError.message);
+    }
     
     res.json({ 
       success: true, 
@@ -135,6 +283,39 @@ router.post('/webhook/bold', async (req, res) => {
         }
 
         console.log(`✅ Orden #${order_id} marcada como pagada y registrada en analytics`);
+
+        // Enviar SMS de confirmación de pago al cliente
+        try {
+          let phoneNumber = null;
+          let customerName = 'Cliente';
+
+          if (order.user_id) {
+            // Pedido de usuario registrado
+            const userResult = await client.query('SELECT name, phone FROM users WHERE id = $1', [order.user_id]);
+            if (userResult.rows.length > 0) {
+              phoneNumber = userResult.rows[0].phone;
+              customerName = userResult.rows[0].name;
+            }
+          } else if (order.customer_info) {
+            // Pedido de usuario no registrado
+            const customerInfo = JSON.parse(order.customer_info);
+            phoneNumber = customerInfo.telefono;
+            customerName = customerInfo.nombre;
+          }
+
+          if (phoneNumber) {
+            await sendSMS(phoneNumber, `¡Hola ${customerName}! Tu pago ha sido confirmado. Tu pedido #${order_id} está siendo procesado. Te notificaremos cuando sea enviado. LushSecret`);
+          }
+        } catch (smsError) {
+          console.error('Error enviando SMS de confirmación de pago:', smsError.message);
+        }
+
+        // Enviar SMS de alerta al admin
+        try {
+          await sendSMS('+57 6013570804', `💰 Pago confirmado para pedido #${order_id}. Total: $${order.total}. Transacción: ${transaction}`);
+        } catch (smsError) {
+          console.error('Error enviando SMS de admin:', smsError.message);
+        }
       }
 
       await client.query('COMMIT');
@@ -162,38 +343,6 @@ router.post('/webhook/bold', async (req, res) => {
     res.status(500).json({ error: 'Error al procesar webhook' });
   } finally {
     client.release();
-  }
-});
-
-// Obtener detalles de una orden
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const orderResult = await pool.query(
-      `SELECT o.*, u.name as customer_name, u.email as customer_email
-       FROM orders o
-       LEFT JOIN users u ON o.user_id = u.id
-       WHERE o.id = $1`,
-      [id]
-    );
-
-    if (orderResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Orden no encontrada' });
-    }
-
-    const itemsResult = await pool.query(
-      `SELECT * FROM order_items WHERE order_id = $1`,
-      [id]
-    );
-
-    res.json({
-      order: orderResult.rows[0],
-      items: itemsResult.rows
-    });
-  } catch (error) {
-    console.error('Error al obtener detalles de orden:', error);
-    res.status(500).json({ error: 'Error al obtener detalles de orden' });
   }
 });
 
@@ -287,6 +436,106 @@ router.get('/stats/shipping', async (req, res) => {
   } catch (error) {
     console.error('Error al obtener estadísticas de pedidos:', error);
     res.status(500).json({ error: 'Error al obtener estadísticas de pedidos' });
+  }
+});
+
+// Actualizar estado de envío (solo admin)
+router.put('/:id/shipping', authenticateToken, async (req, res) => {
+  try {
+    // Verificar si es admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Acceso denegado' });
+    }
+
+    const { id } = req.params;
+    const { shipping_status, tracking_number } = req.body;
+
+    const result = await pool.query(
+      `UPDATE orders
+       SET shipping_status = $1, tracking_number = $2, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
+       RETURNING *`,
+      [shipping_status, tracking_number, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    const order = result.rows[0];
+
+    // Enviar SMS al cliente si hay número de teléfono
+    try {
+      let phoneNumber = null;
+      let customerName = 'Cliente';
+
+      if (order.user_id) {
+        // Pedido de usuario registrado
+        const userResult = await pool.query('SELECT name, phone FROM users WHERE id = $1', [order.user_id]);
+        if (userResult.rows.length > 0) {
+          phoneNumber = userResult.rows[0].phone;
+          customerName = userResult.rows[0].name;
+        }
+      } else if (order.customer_info) {
+        // Pedido de usuario no registrado
+        const customerInfo = JSON.parse(order.customer_info);
+        phoneNumber = customerInfo.telefono;
+        customerName = customerInfo.nombre;
+      }
+
+      if (phoneNumber) {
+        let message = '';
+        if (shipping_status === 'Enviado' && tracking_number) {
+          message = `¡Hola ${customerName}! Tu pedido #${id} ha sido enviado. Número de seguimiento: ${tracking_number}. LushSecret`;
+        } else {
+          message = `¡Hola ${customerName}! El estado de tu pedido #${id} ha cambiado a: ${shipping_status}. LushSecret`;
+        }
+        await sendSMS(phoneNumber, message);
+      }
+    } catch (smsError) {
+      console.error('Error enviando SMS de actualización:', smsError.message);
+    }
+
+    res.json({
+      success: true,
+      order: result.rows[0],
+      message: 'Estado de envío actualizado'
+    });
+  } catch (error) {
+    console.error('Error al actualizar estado de envío:', error);
+    res.status(500).json({ error: 'Error al actualizar estado de envío' });
+  }
+});
+
+// Obtener detalles de una orden
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const orderResult = await pool.query(
+      `SELECT o.*, u.name as customer_name, u.email as customer_email
+       FROM orders o
+       LEFT JOIN users u ON o.user_id = u.id
+       WHERE o.id = $1`,
+      [id]
+    );
+
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Orden no encontrada' });
+    }
+
+    const itemsResult = await pool.query(
+      `SELECT * FROM order_items WHERE order_id = $1`,
+      [id]
+    );
+
+    res.json({
+      order: orderResult.rows[0],
+      items: itemsResult.rows
+    });
+  } catch (error) {
+    console.error('Error al obtener detalles de orden:', error);
+    res.status(500).json({ error: 'Error al obtener detalles de orden' });
   }
 });
 

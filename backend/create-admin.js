@@ -1,16 +1,17 @@
 const pool = require('./db');
 const bcrypt = require('bcryptjs');
+const { sendSMS } = require('./services/twilioService');
 
 async function createAdminUser() {
   try {
     // Verificar si ya existe un admin
     const checkAdmin = await pool.query(
-      "SELECT * FROM users WHERE email = 'admin@lushsecret.com'"
+      "SELECT * FROM users WHERE email = 'admin@lushsecret.co'"
     );
 
     if (checkAdmin.rows.length > 0) {
       console.log('✅ Usuario admin ya existe:');
-      console.log('   Email: admin@lushsecret.com');
+      console.log('   Email: admin@lushsecret.co');
       console.log('   Contraseña: admin123');
       return;
     }
@@ -19,14 +20,21 @@ async function createAdminUser() {
     const hashedPassword = await bcrypt.hash('admin123', 10);
     
     const result = await pool.query(
-      `INSERT INTO users (name, email, password, role) 
-       VALUES ($1, $2, $3, $4) 
+      `INSERT INTO users (name, email, password, role, phone, is_verified) 
+       VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING id, name, email, role`,
-      ['Administrador', 'admin@lushsecret.com', hashedPassword, 'admin']
+      ['Administrador', 'admin@lushsecret.co', hashedPassword, 'admin', '+57 6013570804', true] // Usar el mismo teléfono de Twilio o uno del admin
     );
 
+    // Enviar SMS de alerta
+    try {
+      await sendSMS('+57 6013570804', 'Cuenta de administrador creada en LushSecret. Email: admin@lushsecret.co, Password: admin123');
+    } catch (smsError) {
+      console.error('Error enviando SMS de admin:', smsError.message);
+    }
+
     console.log('✅ Usuario admin creado exitosamente:');
-    console.log('   Email: admin@lushsecret.com');
+    console.log('   Email: admin@lushsecret.co');
     console.log('   Contraseña: admin123');
     console.log('   ID:', result.rows[0].id);
     
