@@ -532,19 +532,22 @@ export default function ProductoDetalle() {
 
               {/* Stock disponible */}
               <div className="mb-6 flex items-center">
-                {producto.stock > 0 ? (
-                  <>
-                    <FaCheck className="text-green-400 mr-2" />
-                    <span className="text-green-400 font-light">
-                      {producto.stock} unidades disponibles
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <FaTimes className="text-red-400 mr-2" />
-                    <span className="text-red-400 font-light">Agotado</span>
-                  </>
-                )}
+                {(() => {
+                  console.log('Stock:', producto.stock, 'Type:', typeof producto.stock);
+                  return producto.stock > 0 ? (
+                    <>
+                      <FaCheck className="text-green-400 mr-2" />
+                      <span className="text-green-400 font-light">
+                        {producto.stock} unidades disponibles
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <FaTimes className="text-red-400 mr-2" />
+                      <span className="text-red-400 font-light">Agotado</span>
+                    </>
+                  );
+                })()}
               </div>
 
               {/* Selector de color (si tiene colores) */}
