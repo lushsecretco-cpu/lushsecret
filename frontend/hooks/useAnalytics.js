@@ -13,8 +13,17 @@ const getSessionId = () => {
   return sessionId;
 };
 
-// Función para rastrear eventos
-export const trackEvent = async (eventData) => {
+// Debounce function to limit API calls
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+};
+
+// Función para rastrear eventos con debounce
+const trackEventInternal = async (eventData) => {
   if (typeof window === 'undefined') return;
 
   try {
@@ -41,11 +50,18 @@ export const trackEvent = async (eventData) => {
   }
 };
 
+// Debounced version of trackEvent (500ms delay)
+export const trackEvent = debounce(trackEventInternal, 500);
+
 // Hook para rastrear visitas a páginas
 export const usePageTracking = (pageName = null) => {
   const startTimeRef = useRef(null);
+  const trackedRef = useRef(false);
 
   useEffect(() => {
+    if (trackedRef.current) return; // Evitar rastreo duplicado
+    trackedRef.current = true;
+
     startTimeRef.current = Date.now();
 
     // Rastrear visita a la página
