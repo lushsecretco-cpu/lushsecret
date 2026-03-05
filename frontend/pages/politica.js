@@ -1,6 +1,8 @@
 import React from 'react';
 import LuxuryBackground from '../components/LuxuryBackground';
 
+// Política de privacidad actualizada - v2.0
+
 export default function Politica() {
   return (
     <LuxuryBackground>
