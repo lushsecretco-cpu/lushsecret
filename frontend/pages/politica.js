@@ -255,3 +255,6 @@ export default function Politica() {
           </div>
         </div>
       </main>
+</LuxuryBackground>
+  );
+}
