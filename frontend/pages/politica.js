@@ -7,30 +7,257 @@ export default function Politica() {
       <main className="min-h-screen text-white py-24 relative z-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-5xl font-light text-center text-transparent bg-clip-text bg-gradient-to-r from-rose-200 via-rose-400 to-rose-200 mb-4 tracking-wide">
-            Política de Privacidad
+            Tu Privacidad es Nuestra Prioridad
           </h1>
-          <p className="text-center text-gray-300 mb-12 text-lg">Última actualización: 4 de marzo de 2026</p>
+          <p className="text-center text-gray-300 mb-12 text-lg">Discreción absoluta garantizada</p>
 
           <div className="bg-black/50 backdrop-blur-sm rounded-lg p-8 border border-rose-500/20 shadow-lg shadow-rose-500/20 space-y-8">
 
-            {/* Introducción */}
+            {/* Mensaje principal de discreción */}
+            <div className="text-center bg-gradient-to-r from-rose-900/30 to-pink-900/30 rounded-lg p-6 border border-rose-500/30">
+              <h2 className="text-2xl font-light text-rose-300 mb-4">🛡️ Compromiso de Discreción Total</h2>
+              <p className="text-gray-200 font-light text-lg leading-relaxed">
+                En LushSecret, entendemos que tu privacidad es sagrada. Cada aspecto de nuestro servicio
+                está diseñado para garantizar que tus compras permanezcan completamente confidenciales.
+                <strong className="text-rose-300"> Nadie sabrá jamás qué has comprado con nosotros.</strong>
+              </p>
+            </div>
+
+            {/* Empaques discretos */}
             <section>
-              <h2 className="text-3xl font-light text-rose-300 mb-4">1. Introducción</h2>
-              <p className="text-gray-300 font-light leading-relaxed mb-4">
-                En LushSecret, valoramos y respetamos tu privacidad. Esta Política de Privacidad describe cómo recopilamos,
-                utilizamos, protegemos y manejamos tu información personal cuando utilizas nuestro sitio web
-                <strong> lushsecret.vercel.app</strong> y nuestros servicios relacionados.
-              </p>
-              <p className="text-gray-300 font-light leading-relaxed mb-4">
-                Nos comprometemos a proteger tu privacidad y a garantizar que tu experiencia de compra sea segura,
-                discreta y confidencial. Esta política se aplica a todos los usuarios de nuestro sitio web,
-                incluyendo visitantes, clientes registrados y usuarios de nuestros servicios.
-              </p>
-              <p className="text-gray-300 font-light leading-relaxed">
-                Al utilizar nuestros servicios, aceptas las prácticas descritas en esta política. Te recomendamos
-                leer esta política detenidamente para entender cómo protegemos tu información.
-              </p>
+              <h2 className="text-3xl font-light text-rose-300 mb-4 flex items-center">
+                📦 Empaques 100% Discretos
+              </h2>
+              <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                <p className="text-gray-300 font-light leading-relaxed mb-4">
+                  Nuestros empaques están diseñados específicamente para proteger tu privacidad:
+                </p>
+                <ul className="space-y-3 text-gray-300 font-light">
+                  <li className="flex items-start">
+                    <span className="text-rose-400 mr-3">✓</span>
+                    <span><strong>Sin logos visibles:</strong> Ningún empaque lleva marcas, logos o indicaciones de contenido</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-rose-400 mr-3">✓</span>
+                    <span><strong>Empaque doble:</strong> Tus productos van dentro de otro empaque genérico antes del envío</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-rose-400 mr-3">✓</span>
+                    <span><strong>Dirección del remitente neutral:</strong> No aparecerá nuestro nombre en el paquete</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-rose-400 mr-3">✓</span>
+                    <span><strong>Materiales opacos:</strong> No se puede ver el contenido a través del empaque</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-rose-400 mr-3">✓</span>
+                    <span><strong>Tamaño estándar:</strong> Los paquetes tienen apariencia común y corriente</span>
+                  </li>
+                </ul>
+              </div>
             </section>
+
+            {/* Anonimato total */}
+            <section>
+              <h2 className="text-3xl font-light text-rose-300 mb-4 flex items-center">
+                🔒 Anonimato Garantizado
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                  <h3 className="text-xl font-light text-rose-400 mb-3">Compra Anónima</h3>
+                  <ul className="space-y-2 text-gray-300 font-light text-sm">
+                    <li>• No requerimos registro obligatorio</li>
+                    <li>• Puedes comprar como invitado</li>
+                    <li>• No guardamos datos sin tu consentimiento</li>
+                    <li>• Opción de pago con criptomonedas disponibles</li>
+                  </ul>
+                </div>
+                <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                  <h3 className="text-xl font-light text-rose-400 mb-3">Comunicación Discreta</h3>
+                  <ul className="space-y-2 text-gray-300 font-light text-sm">
+                    <li>• Emails sin referencias al contenido</li>
+                    <li>• Asunto genérico en todas las comunicaciones</li>
+                    <li>• No enviamos publicidad no solicitada</li>
+                    <li>• Soporte al cliente confidencial</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* No compartimos información */}
+            <section>
+              <h2 className="text-3xl font-light text-rose-300 mb-4 flex items-center">
+                🚫 Política de No Compartir
+              </h2>
+              <div className="bg-red-900/20 rounded-lg p-6 border border-red-500/30">
+                <p className="text-gray-300 font-light leading-relaxed mb-4">
+                  <strong className="text-red-300">Jamás compartimos, vendemos o alquilamos tu información personal.</strong>
+                  Tu privacidad es absoluta y no negociable.
+                </p>
+                <div className="grid md:grid-cols-3 gap-4 text-center">
+                  <div className="bg-gray-800/50 rounded p-4">
+                    <div className="text-2xl mb-2">🚫</div>
+                    <div className="text-sm text-gray-300">No vendemos datos</div>
+                  </div>
+                  <div className="bg-gray-800/50 rounded p-4">
+                    <div className="text-2xl mb-2">🚫</div>
+                    <div className="text-sm text-gray-300">No compartimos con terceros</div>
+                  </div>
+                  <div className="bg-gray-800/50 rounded p-4">
+                    <div className="text-2xl mb-2">🚫</div>
+                    <div className="text-sm text-gray-300">No publicidad externa</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Seguridad de datos */}
+            <section>
+              <h2 className="text-3xl font-light text-rose-300 mb-4 flex items-center">
+                🔐 Seguridad Máxima
+              </h2>
+              <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                <p className="text-gray-300 font-light leading-relaxed mb-4">
+                  Implementamos las medidas de seguridad más avanzadas para proteger tu información:
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-rose-400 font-light mb-2">Tecnología</h4>
+                    <ul className="space-y-1 text-gray-300 font-light text-sm">
+                      <li>• Encriptación SSL de extremo a extremo</li>
+                      <li>• Servidores seguros con firewalls avanzados</li>
+                      <li>• Datos encriptados en reposo</li>
+                      <li>• Monitoreo 24/7 de seguridad</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-rose-400 font-light mb-2">Procesos</h4>
+                    <ul className="space-y-1 text-gray-300 font-light text-sm">
+                      <li>• Eliminación automática de datos temporales</li>
+                      <li>• Acceso restringido al personal mínimo</li>
+                      <li>• Auditorías de seguridad regulares</li>
+                      <li>• Planes de respuesta a incidentes</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Confidencialidad en el proceso de compra */}
+            <section>
+              <h2 className="text-3xl font-light text-rose-300 mb-4 flex items-center">
+                🛒 Proceso de Compra Confidencial
+              </h2>
+              <div className="space-y-4">
+                <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                  <h3 className="text-xl font-light text-rose-400 mb-3">Navegación Privada</h3>
+                  <p className="text-gray-300 font-light leading-relaxed">
+                    Nuestro sitio web no deja rastros identificables. Puedes navegar con total tranquilidad
+                    sabiendo que tu actividad permanece completamente privada.
+                  </p>
+                </div>
+
+                <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                  <h3 className="text-xl font-light text-rose-400 mb-3">Pago Seguro y Anónimo</h3>
+                  <p className="text-gray-300 font-light leading-relaxed">
+                    Aceptamos múltiples métodos de pago seguros. Los datos de tu tarjeta nunca se almacenan
+                    en nuestros servidores. Para máxima discreción, considera opciones como criptomonedas
+                    cuando estén disponibles.
+                  </p>
+                </div>
+
+                <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                  <h3 className="text-xl font-light text-rose-400 mb-3">Envío Discreto Garantizado</h3>
+                  <p className="text-gray-300 font-light leading-relaxed">
+                    Trabajamos con servicios de envío premium que entienden la importancia de la discreción.
+                    Tus paquetes llegan en perfecto estado, sin ninguna indicación de su contenido especial.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* Derechos y control */}
+            <section>
+              <h2 className="text-3xl font-light text-rose-300 mb-4 flex items-center">
+                🎛️ Tú Tienes el Control
+              </h2>
+              <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                <p className="text-gray-300 font-light leading-relaxed mb-4">
+                  Tú decides cuánto compartir y cómo gestionar tu privacidad:
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-rose-400 font-light mb-2">Tus Derechos</h4>
+                    <ul className="space-y-1 text-gray-300 font-light text-sm">
+                      <li>• Eliminar tu cuenta en cualquier momento</li>
+                      <li>• Solicitar eliminación de todos tus datos</li>
+                      <li>• Optar por no recibir comunicaciones</li>
+                      <li>• Acceder a la información que tenemos sobre ti</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-rose-400 font-light mb-2">Tus Opciones</h4>
+                    <ul className="space-y-1 text-gray-300 font-light text-sm">
+                      <li>• Comprar como invitado (sin registro)</li>
+                      <li>• Usar direcciones de envío alternativas</li>
+                      <li>• Gestionar preferencias de privacidad</li>
+                      <li>• Controlar cookies y seguimiento</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Compromiso final */}
+            <section className="border-t border-rose-500/20 pt-8">
+              <div className="text-center bg-gradient-to-r from-rose-900/20 to-pink-900/20 rounded-lg p-8 border border-rose-500/20">
+                <h2 className="text-3xl font-light text-rose-300 mb-4">Nuestra Promesa</h2>
+                <p className="text-gray-200 font-light text-lg leading-relaxed mb-6">
+                  En LushSecret, creemos que tu privacidad es un derecho fundamental. No somos solo una tienda;
+                  somos guardianes de tu confidencialidad. Cada decisión que tomamos, cada proceso que implementamos,
+                  está diseñado con un solo objetivo: mantener tu mundo privado exactamente como lo deseas.
+                </p>
+                <div className="flex justify-center items-center space-x-8 text-sm text-gray-300">
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🔒</div>
+                    <div>Privacidad Primero</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🤫</div>
+                    <div>Discreción Total</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl mb-1">🛡️</div>
+                    <div>Protección Completa</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Información de contacto discreta */}
+            <section>
+              <h2 className="text-3xl font-light text-rose-300 mb-4">¿Preguntas sobre tu Privacidad?</h2>
+              <div className="bg-gray-900/30 rounded-lg p-6 border border-gray-700/50">
+                <p className="text-gray-300 font-light leading-relaxed mb-4">
+                  Si tienes alguna pregunta sobre cómo protegemos tu privacidad o necesitas asistencia,
+                  nuestro equipo de soporte está aquí para ayudarte de manera completamente confidencial.
+                </p>
+                <div className="text-center">
+                  <p className="text-rose-300 font-light mb-2">Contáctanos de forma segura:</p>
+                  <p className="text-gray-300 font-light">📧 info@lushsecret.co</p>
+                  <p className="text-xs text-gray-400 mt-2">
+                    Todas las comunicaciones son encriptadas y confidenciales
+                  </p>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      </main>
+    </LuxuryBackground>
+  );
+}
 
             {/* Información que recopilamos */}
             <section>
@@ -57,16 +284,6 @@ export default function Politica() {
                 <li><strong>Información de uso:</strong> Páginas visitadas, tiempo en el sitio, clics, desplazamientos y patrones de navegación</li>
                 <li><strong>Información de ubicación:</strong> Dirección IP aproximada y ubicación geográfica general</li>
                 <li><strong>Cookies y tecnologías similares:</strong> Información almacenada en cookies, web beacons y tecnologías de seguimiento</li>
-              </ul>
-
-              <h3 className="text-xl font-light text-rose-400 mb-3">2.3 Información de Terceros</h3>
-              <p className="text-gray-300 font-light leading-relaxed">
-                Podemos recibir información sobre ti de terceros proveedores de servicios, incluyendo:
-              </p>
-              <ul className="list-disc list-inside text-gray-300 font-light leading-relaxed space-y-2">
-                <li>Proveedores de pago para verificar transacciones</li>
-                <li>Servicios de envío para actualizar el estado de entregas</li>
-                <li>Plataformas de redes sociales si te registras usando cuentas sociales</li>
               </ul>
             </section>
 
@@ -141,12 +358,6 @@ export default function Politica() {
                 <li>Proteger contra amenazas a la seguridad</li>
                 <li>Prevenir actividades fraudulentas</li>
               </ul>
-
-              <h3 className="text-xl font-light text-rose-400 mb-3">4.3 Transferencias Empresariales</h3>
-              <p className="text-gray-300 font-light leading-relaxed">
-                En caso de fusión, adquisición o venta de activos, tu información puede ser transferida como
-                parte de la transacción. Te notificaremos sobre cualquier cambio en la propiedad de tus datos.
-              </p>
             </section>
 
             {/* Seguridad de datos */}
@@ -204,29 +415,6 @@ export default function Politica() {
               </p>
             </section>
 
-            {/* Derechos del usuario */}
-            <section>
-              <h2 className="text-3xl font-light text-rose-300 mb-4">7. Tus Derechos</h2>
-              <p className="text-gray-300 font-light leading-relaxed mb-4">
-                Tienes ciertos derechos respecto a tu información personal. Dependiendo de tu ubicación,
-                puedes tener los siguientes derechos:
-              </p>
-
-              <ul className="list-disc list-inside text-gray-300 font-light leading-relaxed mb-4 space-y-2">
-                <li><strong>Acceso:</strong> Solicitar una copia de la información personal que tenemos sobre ti</li>
-                <li><strong>Rectificación:</strong> Corregir información inexacta o incompleta</li>
-                <li><strong>Eliminación:</strong> Solicitar la eliminación de tu información personal</li>
-                <li><strong>Portabilidad:</strong> Recibir tus datos en un formato estructurado</li>
-                <li><strong>Restricción:</strong> Limitar el procesamiento de tu información</li>
-                <li><strong>Oposición:</strong> Oponerte al procesamiento de tus datos para ciertos fines</li>
-              </ul>
-
-              <p className="text-gray-300 font-light leading-relaxed">
-                Para ejercer estos derechos, contáctanos usando la información proporcionada en la sección de contacto.
-                Responderemos a tu solicitud dentro de los plazos legales aplicables.
-              </p>
-            </section>
-
             {/* Retención de datos */}
             <section>
               <h2 className="text-3xl font-light text-rose-300 mb-4">8. Retención de Datos</h2>
@@ -271,11 +459,8 @@ export default function Politica() {
 
               <div className="bg-gray-900/50 rounded-lg p-6 border border-rose-500/10">
                 <h3 className="text-xl font-light text-rose-400 mb-4">Información de Contacto</h3>
-                <div className="space-y-3 text-gray-300 font-light">
-                  <p><strong>Email:</strong> privacidad@lushsecret.co</p>
-                  <p><strong>Teléfono:</strong> +57 XXX XXX XXXX</p>
-                  <p><strong>Dirección:</strong> [Dirección de la empresa]</p>
-                  <p><strong>Horario de atención:</strong> Lunes a Viernes, 9:00 AM - 6:00 PM (GMT-5)</p>
+                <div className="text-xs text-white font-light">
+                  <p>Teléfono: 3005951133 Email: info@lushsecret.co</p>
                 </div>
               </div>
 
