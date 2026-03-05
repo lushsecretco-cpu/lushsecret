@@ -12,6 +12,7 @@ export default function Home() {
   const [productosDestacados, setProductosDestacados] = useState([]);
   const [productosPorCategoria, setProductosPorCategoria] = useState({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Tracking de página de inicio
   usePageTracking('Página de Inicio');
@@ -37,8 +38,13 @@ export default function Home() {
 
   const cargarProductos = async () => {
     try {
+      setError(null);
+      
       // Cargar productos destacados (3 más vistos globalmente)
       const destacadosResponse = await fetch(`${API_URL}/api/analytics/most-viewed?limit=3`);
+      if (!destacadosResponse.ok) {
+        throw new Error(`Error al cargar productos destacados: ${destacadosResponse.status} ${destacadosResponse.statusText}`);
+      }
       const destacadosData = await destacadosResponse.json();
       setProductosDestacados(destacadosData);
       
@@ -46,9 +52,19 @@ export default function Home() {
       const porCategoria = {};
       await Promise.all(
         categorias.map(async (cat) => {
-          const response = await fetch(`${API_URL}/api/analytics/most-viewed?category=${cat.slug}&limit=3`);
-          const data = await response.json();
-          porCategoria[cat.slug] = data;
+          try {
+            const response = await fetch(`${API_URL}/api/analytics/most-viewed?category=${cat.slug}&limit=3`);
+            if (!response.ok) {
+              console.warn(`Error al cargar productos de categoría ${cat.slug}: ${response.status} ${response.statusText}`);
+              porCategoria[cat.slug] = []; // Usar array vacío si falla
+              return;
+            }
+            const data = await response.json();
+            porCategoria[cat.slug] = data;
+          } catch (catError) {
+            console.warn(`Error de red al cargar productos de categoría ${cat.slug}:`, catError);
+            porCategoria[cat.slug] = []; // Usar array vacío si falla
+          }
         })
       );
       setProductosPorCategoria(porCategoria);
@@ -56,6 +72,7 @@ export default function Home() {
       setLoading(false);
     } catch (error) {
       console.error('Error al cargar productos:', error);
+      setError(`Error de conexión con el servidor. Por favor, intenta recargar la página.`);
       setLoading(false);
     }
   };
@@ -159,6 +176,16 @@ export default function Home() {
             <div className="text-center text-gray-300 py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-400 mx-auto"></div>
               <p className="mt-4">Cargando productos...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-400 py-12">
+              <p className="text-lg mb-4">⚠️ {error}</p>
+              <button 
+                onClick={cargarProductos}
+                className="bg-rose-600 hover:bg-rose-500 text-white px-6 py-2 rounded-lg font-light transition-colors duration-300"
+              >
+                Reintentar
+              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
