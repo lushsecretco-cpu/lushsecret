@@ -27,6 +27,10 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://localhost:3002',
   'https://lushsecret.vercel.app', // URL de Vercel
+  'https://lushsecret.co', // Dominio personalizado
+  'https://www.lushsecret.co', // Dominio personalizado con www
+  'http://lushsecret.co', // HTTP (por si acaso)
+  'http://www.lushsecret.co', // HTTP con www
   process.env.FRONTEND_URL, // URL de Vercel desde variable de entorno
 ];
 
