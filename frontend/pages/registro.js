@@ -9,6 +9,7 @@ export default function Registro() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
     age: '',
@@ -46,6 +47,7 @@ export default function Registro() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
           password: formData.password,
           age: parseInt(formData.age),
           city: formData.city,
@@ -108,6 +110,19 @@ export default function Registro() {
                 className="appearance-none relative block w-full px-10 py-3 border border-rose-500/30 placeholder-gray-400 text-white bg-gray-800 rounded-lg focus:outline-none focus:ring-rose-400 focus:border-rose-400 sm:text-sm font-light"
                 placeholder="Correo electrónico"
                 value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="relative">
+              <label htmlFor="phone" className="sr-only">Teléfono</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                className="appearance-none relative block w-full px-3 py-3 border border-rose-500/30 placeholder-gray-400 text-white bg-gray-800 rounded-lg focus:outline-none focus:ring-rose-400 focus:border-rose-400 sm:text-sm font-light"
+                placeholder="Teléfono (ej: 3001234567)"
+                value={formData.phone}
                 onChange={handleChange}
               />
             </div>
