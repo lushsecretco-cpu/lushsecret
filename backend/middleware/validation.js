@@ -41,7 +41,7 @@ const validateOrderCreation = [
     .withMessage('El total debe ser un número positivo'),
   body('payment_method')
     .optional()
-    .isIn(['bold', 'transferencia', 'efectivo', 'mercadopago'])
+    .isIn(['transferencia', 'efectivo', 'mercadopago'])
     .withMessage('Método de pago inválido'),
   body('session_id')
     .optional()

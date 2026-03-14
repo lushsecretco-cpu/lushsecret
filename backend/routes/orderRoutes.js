@@ -234,7 +234,7 @@ router.post('/', orderLimiter, validateGuestOrderCreation, handleValidationError
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Error al crear pedido:', error);
-    res.status(500).json({ error: 'Error al crear pedido', detail: error.message });
+    res.status(500).json({ error: 'Error al crear pedido' });
   } finally {
     client.release();
   }
@@ -294,7 +294,7 @@ router.post('/mercadopago/create-preference', orderLimiter, async (req, res) => 
     });
   } catch (error) {
     console.error('Error creando preferencia de Mercado Pago:', error);
-    res.status(500).json({ error: 'Error al crear preferencia de pago', detail: error.message });
+    res.status(500).json({ error: 'Error al crear preferencia de pago' });
   }
 });
 

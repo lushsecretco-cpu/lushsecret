@@ -8,7 +8,7 @@ export default function MetodoPago() {
   const { cart, getTotal, clearCart } = useCart();
   const router = useRouter();
   const [orderData, setOrderData] = useState(null);
-  const [selectedMethod, setSelectedMethod] = useState('bold');
+  const [selectedMethod, setSelectedMethod] = useState('mercadopago');
 
   // Función helper para formatear rutas de imagen
   const formatImageUrl = (imageUrl) => {
@@ -29,51 +29,7 @@ export default function MetodoPago() {
   }, []);
 
   const handlePayment = async () => {
-    if (selectedMethod === 'bold') {
-      try {
-        // Crear la orden en el backend primero
-        const items = cart.map(item => ({
-          product_id: item.id,
-          product_name: item.name,
-          quantity: item.quantity,
-          price: item.price
-        }));
-
-        const response = await fetch(`${API_URL}/api/orders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            customer_info: orderData,
-            items: items,
-            total: getTotal(),
-            payment_method: 'bold',
-            session_id: localStorage.getItem('sessionId') || `session_${Date.now()}`
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          console.log('✅ Orden creada:', result.order);
-          
-          // Aquí integrarás con Bold para procesar el pago
-          // Por ahora simulamos el flujo
-          alert(`Orden #${result.order.id} creada exitosamente.\n\nEn producción, serás redirigido a Bold para completar el pago.\n\nCuando Bold confirme el pago, recibiremos un webhook y la orden se marcará como "paid" automáticamente en las analíticas.`);
-          
-          // Limpiar datos
-          localStorage.removeItem('orderData');
-          clearCart();
-          router.push('/');
-        } else {
-          alert('Error al crear la orden. Por favor intenta nuevamente.');
-        }
-      } catch (error) {
-        console.error('Error al procesar el pago:', error);
-        alert('Error al procesar el pago. Por favor intenta nuevamente.');
-      }
-    } else if (selectedMethod === 'mercadopago') {
+    if (selectedMethod === 'mercadopago') {
       try {
         // Crear la orden en el backend primero
         const items = cart.map(item => ({
@@ -225,37 +181,6 @@ export default function MetodoPago() {
               <h3 className="text-2xl font-light text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-400 mb-6 tracking-wide">
                 Selecciona tu Método de Pago
               </h3>
-
-              {/* Opción Bold */}
-              <div 
-                onClick={() => setSelectedMethod('bold')}
-                className={`cursor-pointer p-6 rounded-lg border-2 transition-all duration-300 mb-4 ${
-                  selectedMethod === 'bold' 
-                    ? 'border-yellow-400 bg-yellow-500/10' 
-                    : 'border-yellow-500/20 bg-black/30 hover:border-yellow-500/40'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      selectedMethod === 'bold' ? 'border-yellow-400' : 'border-gray-500'
-                    }`}>
-                      {selectedMethod === 'bold' && (
-                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-lg font-light text-white tracking-wide">Bold</p>
-                      <p className="text-sm text-gray-400 font-light mt-1">
-                        Pago seguro con tarjetas de crédito/débito
-                      </p>
-                    </div>
-                  </div>
-                  <svg className="w-16 h-16" viewBox="0 0 100 40" fill="none">
-                    <text x="10" y="25" className="text-2xl font-bold fill-yellow-400">BOLD</text>
-                  </svg>
-                </div>
-              </div>
 
               {/* Opción Mercado Pago */}
               <div 
