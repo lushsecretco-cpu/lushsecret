@@ -7,12 +7,20 @@ const { orderLimiter } = require('../middleware/security');
 const { validateOrderCreation, validateGuestOrderCreation, validateShippingAddress, handleValidationErrors } = require('../middleware/validation');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
-// Configurar Mercado Pago v2
-const mpClient = new MercadoPagoConfig({
-  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
-});
-const mpPreference = new Preference(mpClient);
-const mpPayment = new Payment(mpClient);
+// Inicialización lazy de Mercado Pago (evita crash si el token no está al arrancar)
+let mpPreference = null;
+let mpPayment = null;
+
+const getMPClients = () => {
+  if (!mpPreference || !mpPayment) {
+    const token = process.env.MERCADO_PAGO_ACCESS_TOKEN;
+    if (!token) throw new Error('MERCADO_PAGO_ACCESS_TOKEN no configurado');
+    const mpClient = new MercadoPagoConfig({ accessToken: token });
+    mpPreference = new Preference(mpClient);
+    mpPayment = new Payment(mpClient);
+  }
+  return { mpPreference, mpPayment };
+};
 
 // Obtener pedidos del usuario autenticado
 router.get('/user/orders', authenticateToken, async (req, res) => {
@@ -276,7 +284,8 @@ router.post('/mercadopago/create-preference', orderLimiter, async (req, res) => 
       notification_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/orders/webhook/mercadopago`
     };
 
-    const response = await mpPreference.create({ body: preference });
+    const { mpPreference: pref } = getMPClients();
+    const response = await pref.create({ body: preference });
     
     res.json({
       success: true,
@@ -298,7 +307,8 @@ router.post('/webhook/mercadopago', async (req, res) => {
       const paymentId = data.id;
       
       // Obtener detalles del pago
-      const payment = await mpPayment.get({ id: paymentId });
+      const { mpPayment: pay } = getMPClients();
+      const payment = await pay.get({ id: paymentId });
       
       if (payment.status === 'approved') {
         const orderId = payment.external_reference;
