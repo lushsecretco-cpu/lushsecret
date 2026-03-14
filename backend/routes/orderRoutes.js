@@ -334,6 +334,54 @@ router.post('/webhook/mercadopago', async (req, res) => {
           );
         }
 
+        // Obtener datos del cliente para SMS
+        const orderResult = await pool.query(
+          `SELECT customer_info, total, user_id FROM orders WHERE id = $1`,
+          [orderId]
+        );
+
+        if (orderResult.rows.length > 0) {
+          const order = orderResult.rows[0];
+          let phoneNumber = null;
+          let customerName = 'Cliente';
+
+          if (order.user_id) {
+            const userResult = await pool.query('SELECT name, phone FROM users WHERE id = $1', [order.user_id]);
+            if (userResult.rows.length > 0) {
+              phoneNumber = userResult.rows[0].phone;
+              customerName = userResult.rows[0].name;
+            }
+          } else if (order.customer_info) {
+            const customerInfo = typeof order.customer_info === 'string'
+              ? JSON.parse(order.customer_info)
+              : order.customer_info;
+            phoneNumber = customerInfo.telefono;
+            customerName = customerInfo.nombre;
+          }
+
+          // SMS al cliente: pago confirmado
+          if (phoneNumber) {
+            try {
+              await sendSMS(phoneNumber, `¡Hola ${customerName}! Tu pago fue confirmado ✅. Tu pedido #${orderId} en LushSecret está siendo preparado. Te avisaremos cuando sea enviado. 🛍️`);
+            } catch (smsError) {
+              console.error('Error enviando SMS de pago confirmado al cliente:', smsError.message);
+            }
+          }
+
+          // SMS al admin: alerta de pago + datos de logística
+          try {
+            const customerInfo = typeof order.customer_info === 'string'
+              ? JSON.parse(order.customer_info)
+              : order.customer_info;
+
+            const itemsList = orderItems.rows.map(i => `${i.product_name} x${i.quantity}`).join(', ');
+            const adminMsg = `💰 PAGO MP confirmado\nPedido #${orderId} | $${order.total}\nCliente: ${customerInfo.nombre} ${customerInfo.apellidos}\nTel: ${customerInfo.telefono}\nDirección: ${customerInfo.direccion}, ${customerInfo.ciudad}\nRecibe: ${customerInfo.nombreRecibe || customerInfo.nombre}\nProductos: ${itemsList}`;
+            await sendSMS('+57 6013570804', adminMsg);
+          } catch (smsError) {
+            console.error('Error enviando SMS de logística al admin:', smsError.message);
+          }
+        }
+
         console.log(`Pago aprobado para orden ${orderId}`);
       }
     }
