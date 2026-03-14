@@ -27,6 +27,16 @@ services:
       - key: BOLD_API_SECRET
         sync: false
       - key: FRONTEND_URL
+        value: https://lushsecret.co
+      - key: BACKEND_URL
+        value: https://lushsecret-api2.onrender.com
+      - key: MERCADO_PAGO_ACCESS_TOKEN
+        sync: false
+      - key: MERCADO_PAGO_PUBLIC_KEY
+        sync: false
+      - key: MERCADO_PAGO_CLIENT_ID
+        sync: false
+      - key: MERCADO_PAGO_CLIENT_SECRET
         sync: false
 
   # Base de datos PostgreSQL

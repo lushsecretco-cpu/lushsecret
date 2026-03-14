@@ -5,6 +5,12 @@ const { sendSMS } = require('../services/twilioService');
 const { authenticateToken } = require('../middleware/auth');
 const { orderLimiter } = require('../middleware/security');
 const { validateOrderCreation, validateGuestOrderCreation, validateShippingAddress, handleValidationErrors } = require('../middleware/validation');
+const mercadopago = require('mercadopago');
+
+// Configurar Mercado Pago
+mercadopago.configure({
+  access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN || 'TEST-1234567890123456-123456-78901234567890123456789012345678'
+});
 
 // Obtener pedidos del usuario autenticado
 router.get('/user/orders', authenticateToken, async (req, res) => {
@@ -221,6 +227,109 @@ router.post('/', orderLimiter, validateGuestOrderCreation, handleValidationError
     res.status(500).json({ error: 'Error al crear pedido' });
   } finally {
     client.release();
+  }
+});
+
+// Crear preferencia de pago con Mercado Pago
+router.post('/mercadopago/create-preference', orderLimiter, async (req, res) => {
+  try {
+    const { 
+      customer_info,
+      items,
+      total,
+      order_id
+    } = req.body;
+
+    // Crear items para Mercado Pago
+    const preferenceItems = items.map(item => ({
+      title: item.product_name,
+      quantity: item.quantity,
+      unit_price: item.price,
+      currency_id: 'COP'
+    }));
+
+    // Crear preferencia
+    const preference = {
+      items: preferenceItems,
+      payer: {
+        name: customer_info.nombre,
+        surname: customer_info.apellidos,
+        email: customer_info.correo,
+        phone: {
+          area_code: customer_info.telefono.substring(0, 3),
+          number: customer_info.telefono.substring(3)
+        },
+        identification: {
+          type: 'CC',
+          number: customer_info.cedula
+        }
+      },
+      back_urls: {
+        success: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/pago-exitoso?order_id=${order_id}`,
+        failure: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/pago-fallido?order_id=${order_id}`,
+        pending: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/pago-pendiente?order_id=${order_id}`
+      },
+      auto_return: 'approved',
+      external_reference: order_id.toString(),
+      notification_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/orders/webhook/mercadopago`
+    };
+
+    const response = await mercadopago.preferences.create(preference);
+    
+    res.json({
+      success: true,
+      preference_id: response.body.id,
+      init_point: response.body.init_point
+    });
+  } catch (error) {
+    console.error('Error creando preferencia de Mercado Pago:', error);
+    res.status(500).json({ error: 'Error al crear preferencia de pago' });
+  }
+});
+
+// Webhook de Mercado Pago para confirmar pagos
+router.post('/webhook/mercadopago', async (req, res) => {
+  try {
+    const { type, data } = req.body;
+
+    if (type === 'payment') {
+      const paymentId = data.id;
+      
+      // Obtener detalles del pago
+      const payment = await mercadopago.payment.get(paymentId);
+      
+      if (payment.response.status === 'approved') {
+        const orderId = payment.response.external_reference;
+        
+        // Actualizar estado de la orden a 'paid'
+        await pool.query(
+          `UPDATE orders SET status = 'paid', updated_at = CURRENT_TIMESTAMP WHERE id = $1`,
+          [orderId]
+        );
+
+        // Registrar en analytics el evento de conversión completada
+        const orderItems = await pool.query(
+          `SELECT product_id, product_name, quantity, price FROM order_items WHERE order_id = $1`,
+          [orderId]
+        );
+
+        for (const item of orderItems.rows) {
+          await pool.query(
+            `INSERT INTO analytics (event_type, product_id, product_name, session_id, metadata)
+             VALUES ($1, $2, $3, $4, $5)`,
+            ['purchase_completed', item.product_id, item.product_name, `mp_${paymentId}`, 
+             JSON.stringify({ order_id: orderId, quantity: item.quantity, price: item.price, payment_method: 'mercadopago' })]
+          );
+        }
+
+        console.log(`Pago aprobado para orden ${orderId}`);
+      }
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Error procesando webhook de Mercado Pago:', error);
+    res.sendStatus(500);
   }
 });
 

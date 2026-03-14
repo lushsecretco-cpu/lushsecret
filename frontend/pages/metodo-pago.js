@@ -73,6 +73,64 @@ export default function MetodoPago() {
         console.error('Error al procesar el pago:', error);
         alert('Error al procesar el pago. Por favor intenta nuevamente.');
       }
+    } else if (selectedMethod === 'mercadopago') {
+      try {
+        // Crear la orden en el backend primero
+        const items = cart.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        }));
+
+        const orderResponse = await fetch(`${API_URL}/api/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            customer_info: orderData,
+            items: items,
+            total: getTotal(),
+            payment_method: 'mercadopago',
+            session_id: localStorage.getItem('sessionId') || `session_${Date.now()}`
+          })
+        });
+
+        const orderResult = await orderResponse.json();
+
+        if (orderResult.success) {
+          console.log('✅ Orden creada:', orderResult.order);
+          
+          // Crear preferencia de pago con Mercado Pago
+          const preferenceResponse = await fetch(`${API_URL}/api/orders/mercadopago/create-preference`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              customer_info: orderData,
+              items: items,
+              total: getTotal(),
+              order_id: orderResult.order.id
+            })
+          });
+
+          const preferenceResult = await preferenceResponse.json();
+
+          if (preferenceResult.success) {
+            // Redirigir a Mercado Pago
+            window.location.href = preferenceResult.init_point;
+          } else {
+            alert('Error al crear preferencia de pago. Por favor intenta nuevamente.');
+          }
+        } else {
+          alert('Error al crear la orden. Por favor intenta nuevamente.');
+        }
+      } catch (error) {
+        console.error('Error al procesar el pago:', error);
+        alert('Error al procesar el pago. Por favor intenta nuevamente.');
+      }
     }
   };
 
@@ -195,6 +253,38 @@ export default function MetodoPago() {
                   </div>
                   <svg className="w-16 h-16" viewBox="0 0 100 40" fill="none">
                     <text x="10" y="25" className="text-2xl font-bold fill-yellow-400">BOLD</text>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Opción Mercado Pago */}
+              <div 
+                onClick={() => setSelectedMethod('mercadopago')}
+                className={`cursor-pointer p-6 rounded-lg border-2 transition-all duration-300 mb-4 ${
+                  selectedMethod === 'mercadopago' 
+                    ? 'border-blue-400 bg-blue-500/10' 
+                    : 'border-blue-500/20 bg-black/30 hover:border-blue-500/40'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedMethod === 'mercadopago' ? 'border-blue-400' : 'border-gray-500'
+                    }`}>
+                      {selectedMethod === 'mercadopago' && (
+                        <div className="w-3 h-3 rounded-full bg-blue-400"></div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-lg font-light text-white tracking-wide">Mercado Pago</p>
+                      <p className="text-sm text-gray-400 font-light mt-1">
+                        Pago seguro con múltiples métodos
+                      </p>
+                    </div>
+                  </div>
+                  <svg className="w-16 h-16" viewBox="0 0 100 40" fill="none">
+                    <rect x="5" y="5" width="90" height="30" rx="5" fill="#009EE3"/>
+                    <text x="50" y="25" textAnchor="middle" className="text-sm font-bold fill-white">MP</text>
                   </svg>
                 </div>
               </div>
