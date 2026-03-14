@@ -81,8 +81,8 @@ const validateGuestOrderCreation = [
   body('customer_info.direccion')
     .isString()
     .trim()
-    .isLength({ min: 10, max: 500 })
-    .withMessage('La dirección es requerida y debe tener entre 10 y 500 caracteres'),
+    .isLength({ min: 5, max: 500 })
+    .withMessage('La dirección es requerida y debe tener al menos 5 caracteres'),
   body('customer_info.ciudad')
     .isString()
     .trim()
