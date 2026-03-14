@@ -5,12 +5,14 @@ const { sendSMS } = require('../services/twilioService');
 const { authenticateToken } = require('../middleware/auth');
 const { orderLimiter } = require('../middleware/security');
 const { validateOrderCreation, validateGuestOrderCreation, validateShippingAddress, handleValidationErrors } = require('../middleware/validation');
-const mercadopago = require('mercadopago');
+const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 
-// Configurar Mercado Pago
-mercadopago.configure({
-  access_token: process.env.MERCADO_PAGO_ACCESS_TOKEN || 'TEST-1234567890123456-123456-78901234567890123456789012345678'
+// Configurar Mercado Pago v2
+const mpClient = new MercadoPagoConfig({
+  accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN
 });
+const mpPreference = new Preference(mpClient);
+const mpPayment = new Payment(mpClient);
 
 // Obtener pedidos del usuario autenticado
 router.get('/user/orders', authenticateToken, async (req, res) => {
@@ -274,12 +276,12 @@ router.post('/mercadopago/create-preference', orderLimiter, async (req, res) => 
       notification_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/orders/webhook/mercadopago`
     };
 
-    const response = await mercadopago.preferences.create(preference);
+    const response = await mpPreference.create({ body: preference });
     
     res.json({
       success: true,
-      preference_id: response.body.id,
-      init_point: response.body.init_point
+      preference_id: response.id,
+      init_point: response.init_point
     });
   } catch (error) {
     console.error('Error creando preferencia de Mercado Pago:', error);
@@ -296,10 +298,10 @@ router.post('/webhook/mercadopago', async (req, res) => {
       const paymentId = data.id;
       
       // Obtener detalles del pago
-      const payment = await mercadopago.payment.get(paymentId);
+      const payment = await mpPayment.get({ id: paymentId });
       
-      if (payment.response.status === 'approved') {
-        const orderId = payment.response.external_reference;
+      if (payment.status === 'approved') {
+        const orderId = payment.external_reference;
         
         // Actualizar estado de la orden a 'paid'
         await pool.query(
