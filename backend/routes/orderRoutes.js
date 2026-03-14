@@ -234,7 +234,7 @@ router.post('/', orderLimiter, validateGuestOrderCreation, handleValidationError
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('Error al crear pedido:', error);
-    res.status(500).json({ error: 'Error al crear pedido' });
+    res.status(500).json({ error: 'Error al crear pedido', detail: error.message });
   } finally {
     client.release();
   }
