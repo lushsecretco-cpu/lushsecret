@@ -164,6 +164,14 @@ const createTables = async () => {
       console.log('Columna last_tracking_check ya existe o error:', err.message);
     }
 
+    // Agregar product_name a order_items
+    try {
+      await pool.query(`ALTER TABLE order_items ADD COLUMN IF NOT EXISTS product_name VARCHAR(255);`);
+      console.log('Columna product_name en order_items agregada o ya existe.');
+    } catch (err) {
+      console.log('Columna product_name ya existe o error:', err.message);
+    }
+
     // Crear tabla de historial de tracking
     await pool.query(`
       CREATE TABLE IF NOT EXISTS tracking_history (

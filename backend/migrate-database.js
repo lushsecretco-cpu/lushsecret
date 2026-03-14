@@ -26,10 +26,17 @@ async function migrateDatabase() {
     await pool.query(`
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(100);
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_info JSONB;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS customer_info JSONB;
+      ALTER TABLE orders ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS tracking_url TEXT;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS shipping_carrier VARCHAR(100);
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS estimated_delivery TIMESTAMP;
       ALTER TABLE orders ADD COLUMN IF NOT EXISTS last_tracking_check TIMESTAMP;
+    `);
+
+    // Agregar columnas faltantes a la tabla order_items
+    await pool.query(`
+      ALTER TABLE order_items ADD COLUMN IF NOT EXISTS product_name VARCHAR(255);
     `);
 
     // Agregar columnas faltantes a la tabla analytics
