@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
-const { sendSMS } = require('../services/twilioService');
+const { sendSMS, sendNotification } = require('../services/twilioService');
 const { authenticateToken } = require('../middleware/auth');
 const { orderLimiter } = require('../middleware/security');
 const { validateOrderCreation, validateGuestOrderCreation, validateShippingAddress, handleValidationErrors } = require('../middleware/validation');
@@ -199,20 +199,21 @@ router.post('/user/create', authenticateToken, orderLimiter, [...validateOrderCr
 
     await client.query('COMMIT');
 
-    // Enviar SMS de confirmación al cliente
+    // Notificar al cliente (WhatsApp → SMS fallback)
     try {
       if (user.phone) {
-        await sendSMS(user.phone, `¡Gracias por tu compra en LushSecret! Tu pedido #${orderId} ha sido creado. Total: $${total}. Te notificaremos cuando sea enviado.`);
+        await sendNotification(user.phone, `¡Gracias por tu compra en LushSecret! Tu pedido #${orderId} ha sido creado. Total: $${total}. Te notificaremos cuando sea enviado.`);
       }
-    } catch (smsError) {
-      console.error('Error enviando SMS de pedido:', smsError.message);
+    } catch (notifError) {
+      console.error('Error notificando al cliente:', notifError.message);
     }
 
-    // Enviar SMS de alerta al admin
+    // Notificar al admin (WhatsApp → SMS fallback)
     try {
-      await sendSMS('+57 6013570804', `Nuevo pedido #${orderId} creado. Total: $${total}. Cliente: ${user.name}, Email: ${user.email}, Tel: ${user.phone}`);
-    } catch (smsError) {
-      console.error('Error enviando SMS de admin:', smsError.message);
+      const adminPhone = process.env.ADMIN_PHONE || '+573104266390';
+      await sendNotification(adminPhone, `Nuevo pedido #${orderId} creado. Total: $${total}. Cliente: ${user.name}, Email: ${user.email}, Tel: ${user.phone}`);
+    } catch (notifError) {
+      console.error('Error notificando al admin:', notifError.message);
     }
 
     res.json({
@@ -273,21 +274,22 @@ router.post('/', orderLimiter, validateGuestOrderCreation, handleValidationError
 
     await client.query('COMMIT');
     
-    // Enviar SMS de confirmación al cliente
+    // Notificar al cliente (WhatsApp → SMS fallback)
     try {
       const phone = customer_info.telefono;
       if (phone) {
-        await sendSMS(phone, `¡Gracias por tu compra en LushSecret! Tu pedido #${orderId} ha sido creado. Total: $${total}. Te notificaremos cuando sea enviado.`);
+        await sendNotification(phone, `¡Gracias por tu compra en LushSecret! Tu pedido #${orderId} ha sido creado. Total: $${total}. Te notificaremos cuando sea enviado.`);
       }
-    } catch (smsError) {
-      console.error('Error enviando SMS de pedido:', smsError.message);
+    } catch (notifError) {
+      console.error('Error notificando al cliente:', notifError.message);
     }
     
-    // Enviar SMS de alerta al admin
+    // Notificar al admin (WhatsApp → SMS fallback)
     try {
-      await sendSMS('+57 6013570804', `Nuevo pedido #${orderId} creado. Total: $${total}. Cliente: ${customer_info.nombre} ${customer_info.apellidos}, Tel: ${customer_info.telefono}`);
-    } catch (smsError) {
-      console.error('Error enviando SMS de admin:', smsError.message);
+      const adminPhone = process.env.ADMIN_PHONE || '+573104266390';
+      await sendNotification(adminPhone, `Nuevo pedido #${orderId} creado. Total: $${total}. Cliente: ${customer_info.nombre} ${customer_info.apellidos}, Tel: ${customer_info.telefono}`);
+    } catch (notifError) {
+      console.error('Error notificando al admin:', notifError.message);
     }
     
     res.json({ 
@@ -423,12 +425,12 @@ router.post('/webhook/mercadopago', async (req, res) => {
             customerName = customerInfo.nombre;
           }
 
-          // SMS al cliente: pago confirmado
+          // Notificación al cliente: pago confirmado (WhatsApp → SMS fallback)
           if (phoneNumber) {
             try {
-              await sendSMS(phoneNumber, `¡Hola ${customerName}! Tu pago fue confirmado ✅. Tu pedido #${orderId} en LushSecret está siendo preparado. Te avisaremos cuando sea enviado. 🛍️`);
-            } catch (smsError) {
-              console.error('Error enviando SMS de pago confirmado al cliente:', smsError.message);
+              await sendNotification(phoneNumber, `¡Hola ${customerName}! Tu pago fue confirmado ✅. Tu pedido #${orderId} en LushSecret está siendo preparado. Te avisaremos cuando sea enviado. 🛍️`);
+            } catch (notifError) {
+              console.error('Error notificando al cliente pago confirmado:', notifError.message);
             }
           }
 
@@ -443,7 +445,7 @@ router.post('/webhook/mercadopago', async (req, res) => {
             console.error('Error enviando email de confirmación:', emailError.message);
           }
 
-          // SMS al admin: alerta de pago + datos de logística
+          // Notificación al admin: alerta de pago + datos de logística (WhatsApp → SMS fallback)
           try {
             const customerInfo = typeof order.customer_info === 'string'
               ? JSON.parse(order.customer_info)
@@ -451,9 +453,10 @@ router.post('/webhook/mercadopago', async (req, res) => {
 
             const itemsList = orderItems.rows.map(i => `${i.product_name} x${i.quantity}`).join(', ');
             const adminMsg = `💰 PAGO MP confirmado\nPedido #${orderId} | $${order.total}\nCliente: ${customerInfo.nombre} ${customerInfo.apellidos}\nTel: ${customerInfo.telefono}\nDirección: ${customerInfo.direccion}, ${customerInfo.ciudad}\nRecibe: ${customerInfo.nombreRecibe || customerInfo.nombre}\nProductos: ${itemsList}`;
-            await sendSMS('+57 6013570804', adminMsg);
-          } catch (smsError) {
-            console.error('Error enviando SMS de logística al admin:', smsError.message);
+            const adminPhone = process.env.ADMIN_PHONE || '+573104266390';
+            await sendNotification(adminPhone, adminMsg);
+          } catch (notifError) {
+            console.error('Error notificando al admin logística:', notifError.message);
           }
         }
 

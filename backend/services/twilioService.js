@@ -8,6 +8,9 @@ const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 const client = new twilio(accountSid, authToken);
 
+// Número WhatsApp del que se envía (sandbox Twilio o número registrado)
+const whatsappFrom = process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886';
+
 // Servicio de verificación de Twilio
 async function sendVerificationSMS(phoneNumber) {
   try {
@@ -63,4 +66,29 @@ async function sendSMS(to, message) {
   }
 }
 
-module.exports = { sendSMS, sendVerificationSMS, verifyCode };
+// Enviar mensaje por WhatsApp
+async function sendWhatsApp(to, message) {
+  const toFormatted = to.startsWith('whatsapp:') ? to : `whatsapp:${to.replace(/\s/g, '')}`;
+  const fromFormatted = whatsappFrom.startsWith('whatsapp:') ? whatsappFrom : `whatsapp:${whatsappFrom}`;
+  const result = await client.messages.create({
+    body: message,
+    from: fromFormatted,
+    to: toFormatted
+  });
+  console.log('WhatsApp enviado:', result.sid);
+  return result;
+}
+
+// Intenta WhatsApp primero; si falla, cae a SMS
+async function sendNotification(to, message) {
+  if (!to) return;
+  const normalized = to.replace(/\s/g, '');
+  try {
+    return await sendWhatsApp(normalized, message);
+  } catch (waError) {
+    console.warn('WhatsApp falló, intentando SMS:', waError.message);
+    return await sendSMS(normalized, message);
+  }
+}
+
+module.exports = { sendSMS, sendWhatsApp, sendNotification, sendVerificationSMS, verifyCode };
