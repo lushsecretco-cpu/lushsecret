@@ -77,6 +77,19 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
 });
 
+// Diagnóstico temporal de variables de entorno (sin revelar valores)
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    NODE_ENV: process.env.NODE_ENV || 'not set',
+    DATABASE_URL: !!process.env.DATABASE_URL,
+    FRONTEND_URL: process.env.FRONTEND_URL || 'not set',
+    BACKEND_URL: process.env.BACKEND_URL || 'not set',
+    MERCADO_PAGO_ACCESS_TOKEN: !!process.env.MERCADO_PAGO_ACCESS_TOKEN,
+    MERCADO_PAGO_PUBLIC_KEY: !!process.env.MERCADO_PAGO_PUBLIC_KEY,
+    JWT_SECRET: !!process.env.JWT_SECRET,
+  });
+});
+
 app.use('/api/auth', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
