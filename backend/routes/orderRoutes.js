@@ -252,9 +252,9 @@ router.post('/mercadopago/create-preference', orderLimiter, async (req, res) => 
 
     // Crear items para Mercado Pago
     const preferenceItems = items.map(item => ({
-      title: item.product_name,
-      quantity: item.quantity,
-      unit_price: item.price,
+      title: item.product_name || item.title || 'Producto',
+      quantity: parseInt(item.quantity) || 1,
+      unit_price: parseFloat(item.price) || parseFloat(item.unit_price),
       currency_id: 'COP'
     }));
 
