@@ -294,7 +294,7 @@ router.post('/mercadopago/create-preference', orderLimiter, async (req, res) => 
     });
   } catch (error) {
     console.error('Error creando preferencia de Mercado Pago:', error);
-    res.status(500).json({ error: 'Error al crear preferencia de pago' });
+    res.status(500).json({ error: 'Error al crear preferencia de pago', detail: error.message });
   }
 });
 
