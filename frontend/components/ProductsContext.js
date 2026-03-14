@@ -12,10 +12,8 @@ export const ProductsProvider = ({ children }) => {
 
   const fetchProducts = async () => {
     try {
-      console.log('Fetching products...');
       const response = await fetch(`${API_URL}/api/products`);
       const data = await response.json();
-      console.log('Products fetched:', data);
       setProducts(data);
     } catch (err) {
       console.error('Error fetching products:', err);
@@ -24,8 +22,6 @@ export const ProductsProvider = ({ children }) => {
 
   useEffect(() => {
     fetchProducts();
-    const interval = setInterval(fetchProducts, 10000); // Actualizar cada 10 segundos
-    return () => clearInterval(interval);
   }, []);
 
   return (
