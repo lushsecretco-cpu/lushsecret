@@ -6,6 +6,70 @@ const { authenticateToken } = require('../middleware/auth');
 const { orderLimiter } = require('../middleware/security');
 const { validateOrderCreation, validateGuestOrderCreation, validateShippingAddress, handleValidationErrors } = require('../middleware/validation');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
+const nodemailer = require('nodemailer');
+
+const emailTransporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+async function sendPaymentConfirmationEmail(email, customerName, orderId, total, items) {
+  if (!email || !process.env.EMAIL_USER) return;
+  const itemsHtml = items.map(i => `
+    <tr>
+      <td style="padding:8px 0;color:#fff;font-weight:300;">${i.product_name}</td>
+      <td style="padding:8px 0;color:#fff;font-weight:300;text-align:center;">${i.quantity}</td>
+      <td style="padding:8px 0;color:#D4AF37;font-weight:300;text-align:right;">$${Number(i.price).toLocaleString('es-CO')}</td>
+    </tr>`).join('');
+  const mailOptions = {
+    from: `Lush Secret <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `✅ Pago confirmado - Pedido #${orderId} | Lush Secret`,
+    html: `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;background:#0a0a0a;margin:0;padding:20px;">
+      <div style="max-width:600px;margin:0 auto;background:linear-gradient(135deg,#1a1a1a,#0a0a0a);border-radius:16px;overflow:hidden;border:1px solid rgba(212,175,55,0.2);">
+        <div style="background:linear-gradient(135deg,#D4AF37,#C9B037);padding:30px;text-align:center;">
+          <h1 style="margin:0;color:#000;font-size:28px;font-weight:300;letter-spacing:2px;">LUSH SECRET</h1>
+        </div>
+        <div style="padding:40px 30px;">
+          <h2 style="color:#D4AF37;font-weight:300;letter-spacing:1px;">¡Gracias, ${customerName}!</h2>
+          <p style="color:#ccc;line-height:1.6;">Tu pago ha sido confirmado exitosamente. Tu pedido está siendo preparado con mucho cuidado.</p>
+          <div style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:15px 20px;margin:20px 0;text-align:center;">
+            <span style="color:#FFD700;font-size:18px;font-weight:300;">✅ Pago Confirmado</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(212,175,55,0.1);border-radius:8px;padding:20px;margin:20px 0;">
+            <p style="color:#D4AF37;margin:0 0 12px;font-weight:300;">Pedido #${orderId}</p>
+            <table style="width:100%;border-collapse:collapse;">
+              <tr style="border-bottom:1px solid rgba(212,175,55,0.2);">
+                <th style="padding:8px 0;color:#D4AF37;font-weight:300;text-align:left;">Producto</th>
+                <th style="padding:8px 0;color:#D4AF37;font-weight:300;text-align:center;">Cant.</th>
+                <th style="padding:8px 0;color:#D4AF37;font-weight:300;text-align:right;">Precio</th>
+              </tr>
+              ${itemsHtml}
+              <tr style="border-top:1px solid rgba(212,175,55,0.3);">
+                <td colspan="2" style="padding:12px 0;color:#D4AF37;font-weight:300;">Total</td>
+                <td style="padding:12px 0;color:#FFD700;font-weight:300;text-align:right;font-size:18px;">$${Number(total).toLocaleString('es-CO')}</td>
+              </tr>
+            </table>
+          </div>
+          <p style="color:#ccc;font-size:14px;">Te notificaremos por correo y SMS cuando tu pedido sea enviado. También puedes hacer seguimiento en nuestra tienda.</p>
+        </div>
+        <div style="background:rgba(0,0,0,0.5);padding:20px;text-align:center;">
+          <p style="color:#888;font-size:12px;margin:0;">© 2026 Lush Secret. Todos los derechos reservados.</p>
+          <p style="color:#888;font-size:12px;margin:4px 0 0;">Este es un correo automático, por favor no respondas.</p>
+        </div>
+      </div>
+    </body></html>`
+  };
+  try {
+    await emailTransporter.sendMail(mailOptions);
+    console.log(`✅ Email de confirmación enviado a ${email}`);
+  } catch (err) {
+    console.error('Error enviando email de confirmación:', err.message);
+  }
+}
 
 // Inicialización lazy de Mercado Pago (evita crash si el token no está al arrancar)
 let mpPreference = null;
@@ -366,6 +430,17 @@ router.post('/webhook/mercadopago', async (req, res) => {
             } catch (smsError) {
               console.error('Error enviando SMS de pago confirmado al cliente:', smsError.message);
             }
+          }
+
+          // Email al cliente: confirmación de pago
+          try {
+            const customerInfo = typeof order.customer_info === 'string'
+              ? JSON.parse(order.customer_info)
+              : order.customer_info;
+            const emailCliente = customerInfo.correo;
+            await sendPaymentConfirmationEmail(emailCliente, customerName, orderId, order.total, orderItems.rows);
+          } catch (emailError) {
+            console.error('Error enviando email de confirmación:', emailError.message);
           }
 
           // SMS al admin: alerta de pago + datos de logística
