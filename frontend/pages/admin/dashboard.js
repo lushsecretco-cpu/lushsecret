@@ -244,6 +244,26 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleActivate = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/products/${id}/activate`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        fetchProducts();
+      } else {
+        setError('Error al reactivar producto');
+      }
+    } catch (err) {
+      setError('Error de conexión');
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/admin/login';
@@ -328,19 +348,28 @@ export default function AdminDashboard() {
                     </div>
                   )}
 
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <button
                       onClick={() => handleEdit(product)}
                       className="bg-gradient-to-r from-rose-400/80 to-pink-300/80 hover:from-rose-300 hover:to-pink-200 text-black px-3 py-2 rounded-lg font-light transition-all duration-300 flex items-center shadow-md shadow-rose-400/30"
                     >
                       <FaEdit className="mr-1" /> Editar
                     </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="bg-gradient-to-r from-gray-800/80 to-gray-900/80 hover:from-rose-500/20 hover:to-pink-400/20 border border-rose-400/30 hover:border-rose-300 text-rose-300 hover:text-rose-200 px-3 py-2 rounded-lg font-light transition-all duration-300 flex items-center"
-                    >
-                      <FaTrash className="mr-1" /> Eliminar
-                    </button>
+                    {product.is_active === false ? (
+                      <button
+                        onClick={() => handleActivate(product.id)}
+                        className="bg-gradient-to-r from-emerald-500/80 to-emerald-400/80 hover:from-emerald-400 hover:to-emerald-300 border border-emerald-300 text-black px-3 py-2 rounded-lg font-light transition-all duration-300 flex items-center shadow-md shadow-emerald-500/30"
+                      >
+                        ✅ Reactivar
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="bg-gradient-to-r from-gray-800/80 to-gray-900/80 hover:from-rose-500/20 hover:to-pink-400/20 border border-rose-400/30 hover:border-rose-300 text-rose-300 hover:text-rose-200 px-3 py-2 rounded-lg font-light transition-all duration-300 flex items-center"
+                      >
+                        <FaTrash className="mr-1" /> Eliminar
+                      </button>
+                    )}
                   </div>
               </div>
             </div>

@@ -21,8 +21,12 @@ const calculateTotalStock = (sizes) => {
 
 // Obtener todos los productos
 router.get('/', async (req, res) => {
+  const includeInactive = req.query.includeInactive === 'true';
   try {
-    const result = await pool.query('SELECT * FROM products ORDER BY id');
+    const query = includeInactive
+      ? 'SELECT * FROM products ORDER BY id'
+      : 'SELECT * FROM products WHERE is_active = true ORDER BY id';
+    const result = await pool.query(query);
     res.json(result.rows);
   } catch (err) {
     console.error('Error obteniendo productos:', err);
@@ -33,15 +37,19 @@ router.get('/', async (req, res) => {
 // Obtener un producto por ID
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
+  const includeInactive = req.query.includeInactive === 'true';
   try {
-    const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+    const query = includeInactive
+      ? 'SELECT * FROM products WHERE id = $1'
+      : 'SELECT * FROM products WHERE id = $1 AND is_active = true';
+    const result = await pool.query(query, [id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Error obteniendo producto:', err);
-    res.status(500).json({ message: 'Error obteniendo producto' });
+    res.status(500).json({ message: 'Error obteniendo producto', error: err.message });
   }
 });
 
@@ -89,6 +97,26 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Reactivar producto (soft delete)
+router.put('/:id/activate', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      'UPDATE products SET is_active = true WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    res.json({ message: 'Producto reactivado', product: result.rows[0] });
+  } catch (err) {
+    console.error('Error reactivando producto:', err);
+    res.status(500).json({ message: 'Error reactivando producto', error: err.message });
+  }
+});
+
 // Eliminar producto
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
@@ -97,17 +125,15 @@ router.delete('/:id', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Eliminar items de pedido relacionados para evitar errores de FK
-    await client.query('DELETE FROM order_items WHERE product_id = $1', [id]);
-
-    const result = await client.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
+    // Marcar producto como inactivo en lugar de eliminarlo, para conservar historial de pedidos
+    const result = await client.query('UPDATE products SET is_active = false WHERE id = $1 RETURNING *', [id]);
     if (result.rows.length === 0) {
       await client.query('ROLLBACK');
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
     await client.query('COMMIT');
-    res.json({ message: 'Producto eliminado' });
+    res.json({ message: 'Producto desactivado' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error eliminando producto:', err);
