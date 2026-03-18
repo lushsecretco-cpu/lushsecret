@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [showInactive, setShowInactive] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -31,12 +32,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [showInactive]);
 
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_URL}/api/products?includeInactive=true`, {
+      const url = `${API_URL}/api/products${showInactive ? '?includeInactive=true' : ''}`;
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -281,9 +283,19 @@ export default function AdminDashboard() {
     <LuxuryBackground>
       <main className="min-h-screen text-white py-24 px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <h1 className="text-4xl font-light text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-200 to-amber-300 tracking-wide">Panel de Administración - Productos</h1>
-          <div className="flex space-x-4">
+            <div className="flex items-center gap-4">
+              <label className="text-sm text-gray-200 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={showInactive}
+                  onChange={(e) => setShowInactive(e.target.checked)}
+                  className="accent-rose-400"
+                />
+                Mostrar inactivos
+              </label>
+            <div className="flex space-x-4">
             <button
               onClick={() => window.location.href = '/admin/security'}
               className="bg-gradient-to-r from-blue-600/80 to-purple-600/80 hover:from-blue-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg font-light transition-all duration-300 flex items-center transform hover:scale-105 shadow-lg shadow-blue-500/30"
@@ -319,7 +331,12 @@ export default function AdminDashboard() {
             {products.map((product) => (
               <div key={product.id} className="bg-black/50 backdrop-blur-sm rounded-lg shadow-lg shadow-rose-400/20 overflow-hidden border border-rose-400/30 hover:shadow-rose-400/40 hover:border-rose-300/50 transition-all duration-300">
                 <img src={formatImageUrl(product.image)} alt={product.name} className="w-full h-48 object-cover" />
-                <div className="p-6">
+<div className="p-6 relative">
+                    {!product.is_active && (
+                      <span className="absolute top-4 right-4 bg-rose-500/90 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-lg">
+                        Inactivo
+                      </span>
+                    )}
                   <h3 className="text-xl font-light text-white mb-2">{product.name}</h3>
                   <p className="text-gray-300 mb-2 font-light text-sm line-clamp-2">{product.description}</p>
                   
