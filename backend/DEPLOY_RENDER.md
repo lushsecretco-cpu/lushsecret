@@ -93,8 +93,12 @@ CREATE TABLE products (
   category VARCHAR(100),
   image_url TEXT,
   stock INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Si ya tienes la tabla creada, ejecuta esta sentencia para agregar soporte de "soft delete":
+-- ALTER TABLE products ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
 
 -- Crear tabla de pedidos
 CREATE TABLE orders (
