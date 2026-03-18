@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Cambia la URL abajo si despliegas en un dominio distinto.
+Sitemap: https://lushsecret.co/sitemap.xml

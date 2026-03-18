@@ -1,4 +1,5 @@
 import { API_URL } from '../../config/api';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
 import LuxuryBackground from '../../components/LuxuryBackground';
@@ -364,6 +365,12 @@ export default function ProductoDetalle() {
     }
   };
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lushsecret.vercel.app';
+  const canonicalUrl = `${baseUrl}/producto/${id || ''}`;
+  const pageTitle = producto ? `${producto.name} - LushSecret` : 'LushSecret - Explora placer, estilo y discreción';
+  const pageDescription = producto?.description || 'Productos seleccionados, envíos discretos y pagos seguros. Vive la experiencia LushSecret.';
+  const ogImage = producto ? formatImageUrl(producto.image) : '/images/og-image.jpg';
+
   if (!router.isReady || loading) {
     return (
       <LuxuryBackground>
@@ -445,8 +452,19 @@ export default function ProductoDetalle() {
   }
 
   return (
-    <LuxuryBackground>
-      <div className="container mx-auto px-4 py-12">
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
+      <LuxuryBackground>
+        <div className="container mx-auto px-4 py-12">
         {/* Botón volver */}
         <button
           onClick={() => router.back()}
@@ -733,6 +751,7 @@ export default function ProductoDetalle() {
         </div>
       </div>
     </LuxuryBackground>
+    </>
   );
 }
 
