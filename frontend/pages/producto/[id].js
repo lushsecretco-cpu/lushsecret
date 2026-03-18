@@ -365,7 +365,7 @@ export default function ProductoDetalle() {
     }
   };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lushsecret.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lushsecret.co';
   const canonicalUrl = `${baseUrl}/producto/${id || ''}`;
   const pageTitle = producto ? `${producto.name} - LushSecret` : 'LushSecret - Explora placer, estilo y discreción';
   const pageDescription = producto?.description || 'Productos seleccionados, envíos discretos y pagos seguros. Vive la experiencia LushSecret.';

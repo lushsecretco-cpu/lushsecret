@@ -8,20 +8,26 @@ import { CartProvider } from '../components/CartContext';
 import { ProductsProvider } from '../components/ProductsContext';
 
 export default function App({ Component, pageProps }) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://lushsecret.co';
+  const defaultTitle = 'LushSecret - Explora placer, estilo y discreción';
+  const defaultDescription = 'Productos seleccionados, envíos discretos y pagos seguros. Vive la experiencia LushSecret.';
+  const defaultImage = `${baseUrl}/images/og-image.jpg`;
+
   return (
     <CartProvider>
       <ProductsProvider>
         <Head>
-          <title>LushSecret - Explora placer, estilo y discreción</title>
-          <meta name="description" content="Productos seleccionados, envíos discretos y pagos seguros. Vive la experiencia LushSecret." />
+          <title>{defaultTitle}</title>
+          <meta name="description" content={defaultDescription} />
+          <link rel="canonical" href={baseUrl} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta charSet="utf-8" />
           <link rel="icon" href="/favicon.ico" />
           <meta name="theme-color" content="#000000" />
-          <meta property="og:title" content="LushSecret - Explora placer, estilo y discreción" />
-          <meta property="og:description" content="Productos seleccionados, envíos discretos y pagos seguros. Vive la experiencia LushSecret." />
-          <meta property="og:image" content="/images/og-image.jpg" />
-          <meta property="og:url" content="https://lushsecret.vercel.app" />
+          <meta property="og:title" content={defaultTitle} />
+          <meta property="og:description" content={defaultDescription} />
+          <meta property="og:image" content={defaultImage} />
+          <meta property="og:url" content={baseUrl} />
           <meta name="twitter:card" content="summary_large_image" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
