@@ -29,6 +29,17 @@ router.get('/', async (req, res) => {
     const result = await pool.query(query);
     res.json(result.rows);
   } catch (err) {
+    // Si la columna is_active no existe, caemos a la versión antigua (sin filtro)
+    if (err.message && err.message.includes('column "is_active" does not exist')) {
+      try {
+        const result = await pool.query('SELECT * FROM products ORDER BY id');
+        return res.json(result.rows);
+      } catch (innerErr) {
+        console.error('Error obteniendo productos (fallback):', innerErr);
+        return res.status(500).json({ message: 'Error obteniendo productos', error: innerErr.message });
+      }
+    }
+
     console.error('Error obteniendo productos:', err);
     res.status(500).json({ message: 'Error obteniendo productos', error: err.message });
   }
@@ -48,6 +59,20 @@ router.get('/:id', async (req, res) => {
     }
     res.json(result.rows[0]);
   } catch (err) {
+    // Si la columna is_active no existe, caemos a la versión antigua (sin filtro)
+    if (err.message && err.message.includes('column "is_active" does not exist')) {
+      try {
+        const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+        if (result.rows.length === 0) {
+          return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        return res.json(result.rows[0]);
+      } catch (innerErr) {
+        console.error('Error obteniendo producto (fallback):', innerErr);
+        return res.status(500).json({ message: 'Error obteniendo producto', error: innerErr.message });
+      }
+    }
+
     console.error('Error obteniendo producto:', err);
     res.status(500).json({ message: 'Error obteniendo producto', error: err.message });
   }
