@@ -285,16 +285,28 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <h1 className="text-4xl font-light text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-pink-200 to-amber-300 tracking-wide">Panel de Administración - Productos</h1>
-            <div className="flex items-center gap-4">
-              <label className="text-sm text-gray-200 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={showInactive}
-                  onChange={(e) => setShowInactive(e.target.checked)}
-                  className="accent-rose-400"
-                />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowInactive(false)}
+                className={`px-3 py-1 rounded-full text-sm font-light transition ${
+                  !showInactive
+                    ? 'bg-rose-500/80 text-white shadow-lg shadow-rose-500/30'
+                    : 'bg-gray-800/60 text-gray-200 hover:bg-gray-700'
+                }`}
+              >
+                Solo activos
+              </button>
+              <button
+                onClick={() => setShowInactive(true)}
+                className={`px-3 py-1 rounded-full text-sm font-light transition ${
+                  showInactive
+                    ? 'bg-rose-500/80 text-white shadow-lg shadow-rose-500/30'
+                    : 'bg-gray-800/60 text-gray-200 hover:bg-gray-700'
+                }`}
+              >
                 Mostrar inactivos
-              </label>
+              </button>
+            </div>
             <div className="flex space-x-4">
             <button
               onClick={() => window.location.href = '/admin/security'}
